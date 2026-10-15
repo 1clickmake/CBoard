@@ -15,7 +15,7 @@ include CM_LAYOUT_PATH . '/header.php';
         <!-- Center: Logo -->
         <a href="/" class="navbar-brand">
             <?php if (($siteConfig['logo_type'] ?? 'text') === 'image' && !empty($siteConfig['logo_image'])): ?>
-                <img src="<?= $siteConfig['logo_image'] ?>" alt="<?= htmlspecialchars($siteConfig['site_name']) ?>" style="max-height: 40px;">
+                <img src="<?= sanitize_url($siteConfig['logo_image']) ?>" alt="<?= htmlspecialchars($siteConfig['site_name']) ?>" style="max-height: 40px;">
             <?php else: ?>
                 <?= htmlspecialchars(!empty($siteConfig['logo_text']) ? $siteConfig['logo_text'] : ($siteConfig['site_name'] ?? 'CMAKE')) ?>
             <?php endif; ?>

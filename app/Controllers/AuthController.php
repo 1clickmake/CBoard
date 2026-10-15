@@ -38,7 +38,8 @@ class AuthController extends BaseController {
         if ($user && password_verify($password, $user['password'])) {
             // Reset rate limit on successful login
             unset($_SESSION['rate_limit_login']);
-            
+            session_regenerate_id(true);
+            unset($user['password']);
             $_SESSION['user'] = $user;
 
             
@@ -53,6 +54,9 @@ class AuthController extends BaseController {
     }
 
     public function register() {
+        if (!check_rate_limit('register', 5, 300)) {
+            return $this->view('auth/register', ['error' => 'Too many registration attempts. Please try again later.']);
+        }
         if (!Csrf::verify($_POST['csrf_token'] ?? '')) {
             $this->view('auth/register', ['error' => 'Invalid Security Token']);
             return;
@@ -67,6 +71,12 @@ class AuthController extends BaseController {
 
         if ($password !== $confirm) {
             return $this->view('auth/register', ['error' => 'Passwords do not match']);
+        }
+        if (strlen($password) < 8) {
+            return $this->view('auth/register', ['error' => 'Password must be at least 8 characters']);
+        }
+        if (!is_valid_email($email)) {
+            return $this->view('auth/register', ['error' => 'Invalid email format']);
         }
 
         // Validate User ID
@@ -119,8 +129,12 @@ class AuthController extends BaseController {
     }
 
     public function logout() {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'] ?? '/', $params['domain'] ?? '', $params['secure'] ?? false, $params['httponly'] ?? true);
+        }
         session_destroy();
-        $_SESSION = []; // Clear current session array
 
         $this->redirect('/login');
     }
@@ -136,7 +150,7 @@ class AuthController extends BaseController {
         $userId = $user['id'];
         $userStrId = $user['user_id'];
 
-        // Get last 10 posts
+        // Get last 10 posts (posts.user_id stores the string user_id)
         $stmt = $db->prepare("
             SELECT p.*, b.title as board_title, b.slug as board_slug 
             FROM posts p 
@@ -145,7 +159,7 @@ class AuthController extends BaseController {
             ORDER BY p.created_at DESC 
             LIMIT 10
         ");
-        $stmt->execute(['user_id' => $userId]);
+        $stmt->execute(['user_id' => $userStrId]);
         $posts = $stmt->fetchAll();
 
         $this->view('auth/mypage', [
@@ -195,7 +209,8 @@ class AuthController extends BaseController {
         // Update session
         $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->execute([$userId]);
-        $_SESSION['user'] = $stmt->fetch();
+        $fresh = $stmt->fetch();
+        if ($fresh) { unset($fresh['password']); $_SESSION['user'] = $fresh; }
 
 
         $this->redirect('/mypage?updated=1');

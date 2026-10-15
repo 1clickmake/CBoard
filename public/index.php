@@ -39,15 +39,26 @@ require_once CM_LIB_PATH . '/common.lib.php';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $hostname = explode(':', $host)[0]; // Remove port if present
 
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 session_set_cookie_params([
     'lifetime' => 86400,
-    'path' => '/',
-    'domain' => '', // Empty string for localhost compatibility
-    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+    'path' => $basePath !== '' ? $basePath : '/',
+    'domain' => '',
+    'secure' => $isHttps,
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
+ini_set('session.cookie_httponly', '1');
 session_start();
+
+// Security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Removed setup_user_variables()
 
@@ -62,7 +73,7 @@ if (file_exists($envPath) && !str_starts_with($internalUri, '/install')) {
         if ($stmt->rowCount() > 0) {
             $config = $db->query("SELECT allowed_ips, blocked_ips FROM config WHERE id = 1")->fetch();
             if ($config) {
-                $clientIp = $_SERVER['REMOTE_ADDR'];
+                $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
                 
                 // Allow List Check (Whitelist)
                 // If whitelist rules exist, ONLY IPs starting with those rules are allowed.

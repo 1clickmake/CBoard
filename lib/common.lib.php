@@ -9,16 +9,16 @@
  * Clean strings for safe output
  */
 function get_text($str) {
-    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string)($str ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
 /**
  * Alert and redirect
  */
 function alert($msg, $url = '') {
-    echo "<script>alert('" . addslashes($msg) . "');";
+    echo "<script>alert(" . json_encode((string)$msg, JSON_UNESCAPED_UNICODE) . ");";
     if ($url) {
-        echo "location.replace('" . $url . "');";
+        echo "location.replace(" . json_encode((string)$url) . ");";
     } else {
         echo "history.back();";
     }
@@ -121,13 +121,21 @@ function add_point($user_id, $point, $rel_msg = '') {
     $db = \App\Core\Database::getInstance();
     if (!$db) return false;
 
-    // Update user point
-    $stmt = $db->prepare("UPDATE users SET point = point + :point WHERE user_id = :user_id");
-    $stmt->execute(['point' => $point, 'user_id' => $user_id]);
+    try {
+        $db->beginTransaction();
+        // Update user point
+        $stmt = $db->prepare("UPDATE users SET point = point + :point WHERE user_id = :user_id");
+        $stmt->execute(['point' => $point, 'user_id' => $user_id]);
 
-    // Record point log
-    $stmt = $db->prepare("INSERT INTO point_log (user_id, point, rel_msg) VALUES (:user_id, :point, :rel_msg)");
-    $stmt->execute(['user_id' => $user_id, 'point' => $point, 'rel_msg' => $rel_msg]);
+        // Record point log
+        $stmt = $db->prepare("INSERT INTO point_log (user_id, point, rel_msg) VALUES (:user_id, :point, :rel_msg)");
+        $stmt->execute(['user_id' => $user_id, 'point' => $point, 'rel_msg' => $rel_msg]);
+        $db->commit();
+    } catch (\Throwable $e) {
+        if ($db->inTransaction()) $db->rollBack();
+        error_log('add_point failed: ' . $e->getMessage());
+        return false;
+    }
 
     // Update level based on new points (simple rule: level = floor(points / 1000) + 1)
     update_level($user_id);
@@ -159,15 +167,18 @@ function update_level($user_id) {
     $db = \App\Core\Database::getInstance();
     if (!$db) return false;
 
-    $stmt = $db->prepare("SELECT point, level FROM users WHERE user_id = :user_id");
+    $stmt = $db->prepare("SELECT point, level, role FROM users WHERE user_id = :user_id");
     $stmt->execute(['user_id' => $user_id]);
     $user = $stmt->fetch();
 
     if (!$user) return false;
 
     // level calculation logic (e.g., Level up every 500 points)
+    // Cap at 4 for non-admins: level 5+ must only come from role='admin' (see AuthService::isAdmin)
     $new_level = floor($user['point'] / 500) + 1;
     if ($new_level < 1) $new_level = 1;
+    $is_admin_role = (isset($user['role']) && $user['role'] === 'admin');
+    if (!$is_admin_role && $new_level > 4) $new_level = 4;
 
     if ($new_level != $user['level']) {
         $stmt = $db->prepare("UPDATE users SET level = :level WHERE user_id = :user_id");

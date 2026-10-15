@@ -640,8 +640,9 @@ class BoardController extends BaseController {
         if (!isset($_SESSION['user'])) {
             return $this->json(['error' => 'Unauthorized']);
         }
-        // CSRF verification for editor upload might be tricky with some editors, but advisable
-        // if (!Csrf::verify($_POST['csrf_token'] ?? '')) return $this->json(['error' => 'CSRF']);
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
+            return $this->json(['error' => 'CSRF validation failed']);
+        }
 
         $slug = $vars['slug'];
         
@@ -706,9 +707,11 @@ class BoardController extends BaseController {
         }
 
         // 3. Serve file
+        $safeName = str_replace(["\r", "\n", '"'], '', $file['original_name']);
+        $safeName = mb_substr($safeName, 0, 200);
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $file['original_name'] . '"');
+        header('Content-Disposition: attachment; filename="' . $safeName . '"; filename*=UTF-8\'\'' . rawurlencode($safeName));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');

@@ -49,28 +49,35 @@ class HomeController extends BaseController {
             $this->json(['success' => false, 'message' => 'Invalid request method']);
         }
 
+        if (!check_rate_limit('contact', 5, 300)) {
+            $this->json(['success' => false, 'message' => 'Too many requests. Please try again later']);
+        }
+
         if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) {
             $this->json(['success' => false, 'message' => 'CSRF validation failed']);
         }
 
-        $name        = $_POST['name'] ?? '';
-        $phone       = $_POST['phone'] ?? '';
-        $email       = $_POST['email'] ?? '';
-        $subject     = $_POST['subject'] ?? '';
+        $name        = trim($_POST['name'] ?? '');
+        $phone       = trim($_POST['phone'] ?? '');
+        $email       = trim($_POST['email'] ?? '');
+        $subject     = trim($_POST['subject'] ?? '');
         $message     = $_POST['message'] ?? '';
         $target_type = $_POST['target_type'] ?? 'contact';
 
         if (!$name || !$email || !$subject || !$message) {
             $this->json(['success' => false, 'message' => 'Please fill in all fields']);
         }
+        if (!is_valid_email($email)) {
+            $this->json(['success' => false, 'message' => 'Invalid email format']);
+        }
 
-        // Prepare email content
+        // Prepare email content (escape all user input)
         $content = "
             <h3>New Contact Message</h3>
-            <p><strong>Name:</strong> {$name}</p>
-            <p><strong>Phone:</strong> {$phone}</p>
-            <p><strong>Email:</strong> {$email}</p>
-            <p><strong>Subject:</strong> {$subject}</p>
+            <p><strong>Name:</strong> " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>Phone:</strong> " . htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>Email:</strong> " . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>Subject:</strong> " . htmlspecialchars($subject, ENT_QUOTES, 'UTF-8') . "</p>
             <p><strong>Message:</strong></p>
             <p>" . nl2br(htmlspecialchars($message)) . "</p>
         ";

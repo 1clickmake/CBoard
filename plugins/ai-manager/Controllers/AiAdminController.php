@@ -10,6 +10,7 @@ class AiAdminController
 {
     public function index()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); die('Forbidden'); }
         $db = Database::getInstance();
         $config = $db->query("SELECT * FROM `ai_config` WHERE `id` = 1")->fetch();
         
@@ -21,6 +22,8 @@ class AiAdminController
 
     public function update()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); die('Forbidden'); }
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF validation failed'); }
         $db = Database::getInstance();
         $openai_key = $_POST['openai_key'] ?? '';
         $claude_key = $_POST['claude_key'] ?? '';
@@ -40,6 +43,8 @@ class AiAdminController
 
     public function generate()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); echo json_encode(['success' => false, 'message' => 'Forbidden']); return; }
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) { http_response_code(403); echo json_encode(['success' => false, 'message' => 'CSRF validation failed']); return; }
         header('Content-Type: application/json');
         
         try {

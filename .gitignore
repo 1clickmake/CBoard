@@ -12,8 +12,12 @@
 # User Uploaded Files
 /public/data/*
 !/public/data/.htaccess
+!/public/data/page/
+!/public/data/logo/
+!/public/data/config/
 !/public/data/page/.htaccess
 !/public/data/logo/.htaccess
+!/public/data/config/.htaccess
 
 # IDE and Editor Files
 .vscode/
@@ -58,9 +62,11 @@ yarn-error.log
 # Session Files
 /sessions/
 
+# Install lock (server-generated)
+/install.lock
+
 # PHPStorm
 .phpunit.result.cache
 
 # Development and Temporary Files (Root Level Only)
-/.env.example
 /PROJECT_HISTORY.md

@@ -24,9 +24,12 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            if (strpos($_SERVER['REQUEST_URI'], '/install') === false) {
-                die("Connection failed: " . $e->getMessage());
+            error_log('DB connection failed: ' . $e->getMessage());
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            if (strpos($uri, '/install') === false) {
+                die("Database connection failed. Please try again later.");
             }
+            throw $e;
         }
     }
 

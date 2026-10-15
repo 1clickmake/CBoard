@@ -37,8 +37,11 @@ $baseUrl = str_replace('\\', '/', dirname($scriptName));
 if ($baseUrl === '/' || $baseUrl === '.') $baseUrl = '';
 
 define('CM_BASE_URL', $baseUrl);
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) ? 'https' : 'http';
+$port = isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 0;
+$forwardedProto = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : '';
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $port === 443 || $forwardedProto === 'https') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host = preg_replace('/[^A-Za-z0-9.:-]/', '', $host);
 define('CM_SITE_URL', $protocol . '://' . $host . CM_BASE_URL);
 
 define('CM_ADMIN_URL',  CM_BASE_URL . '/admin');

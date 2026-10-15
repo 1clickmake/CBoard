@@ -23,17 +23,6 @@ class AdminController extends BaseController {
     public function config() {
         $db = Database::getInstance();
 
-        // Mall Settings Migration
-        try {
-            $columns = $db->query("SHOW COLUMNS FROM config")->fetchAll(PDO::FETCH_COLUMN);
-            if (!in_array('mall_commission', $columns)) {
-                $db->exec("ALTER TABLE config ADD COLUMN mall_commission INT(11) DEFAULT 10 AFTER join_level");
-            }
-            if (!in_array('mall_name', $columns)) {
-                $db->exec("ALTER TABLE config ADD COLUMN mall_name VARCHAR(255) DEFAULT 'Open Market' AFTER mall_commission");
-            }
-        } catch (\PDOException $e) {}
-
         $config = $db->query("SELECT * FROM config WHERE id = 1")->fetch();
         
         // Get available templates from filesystem
@@ -79,14 +68,19 @@ class AdminController extends BaseController {
 
         // Handle Logo Image Upload
         if ($logoType === 'image' && isset($_FILES['logo_image']) && $_FILES['logo_image']['error'] === UPLOAD_ERR_OK) {
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            $orig = basename($_FILES['logo_image']['name']);
+            $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed, true)) die("Invalid logo file type");
+            if ($_FILES['logo_image']['size'] > 5242880) die("Logo file too large");
+            if ($ext !== 'svg' && !@getimagesize($_FILES['logo_image']['tmp_name'])) die("Invalid logo image");
             $uploadDir = '/data/logo/';
             $fullPath = CM_PUBLIC_PATH . $uploadDir;
             if (!is_dir($fullPath)) {
-                mkdir($fullPath, 0707, true);
-                @chmod($fullPath, 0707);
+                mkdir($fullPath, 0755, true);
             }
+            @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\n");
 
-            $ext = pathinfo($_FILES['logo_image']['name'], PATHINFO_EXTENSION);
             $newName = 'logo_' . time() . '.' . $ext;
             if (move_uploaded_file($_FILES['logo_image']['tmp_name'], $fullPath . $newName)) {
                 $logoImage = $uploadDir . $newName;
@@ -106,9 +100,7 @@ class AdminController extends BaseController {
             logo_image = :logo_image,
             template = :template,
             join_point = :join_point,
-            join_level = :join_level,
-            mall_commission = :mall_commission,
-            mall_name = :mall_name
+            join_level = :join_level
             WHERE id = 1");
         
         $stmt->execute([
@@ -124,26 +116,29 @@ class AdminController extends BaseController {
             'logo_image' => $logoImage,
             'template' => $template,
             'join_point' => $_POST['join_point'] ?? 0,
-            'join_level' => $_POST['join_level'] ?? 1,
-            'mall_commission' => intval($_POST['mall_commission'] ?? 10),
-            'mall_name' => trim($_POST['mall_name'] ?? 'Open Market')
+            'join_level' => $_POST['join_level'] ?? 1
         ]);
 
         $this->redirect('/admin/config');
     }
 
     public function uploadImage() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) { http_response_code(403); echo json_encode(['error' => 'CSRF validation failed']); exit; }
         $uploadDir = '/data/config/';
         $fullPath = CM_PUBLIC_PATH . $uploadDir;
 
         if (!is_dir($fullPath)) {
-            mkdir($fullPath, 0707, true);
-            @chmod($fullPath, 0707);
+            mkdir($fullPath, 0755, true);
         }
+        @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\n");
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            if ($_FILES['image']['size'] > 10485760) { http_response_code(413); echo json_encode(['error' => 'Too large']); exit; }
             $originalName = basename($_FILES['image']['name']);
-            $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+            $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true) || !@getimagesize($_FILES['image']['tmp_name'])) {
+                http_response_code(415); echo json_encode(['error' => 'Invalid image']); exit;
+            }
             $newName = 'config_' . uniqid() . '.' . $extension;
             $targetFile = $fullPath . $newName;
 
@@ -348,6 +343,7 @@ class AdminController extends BaseController {
     }
 
     public function createGroup() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $name = $_POST['name'] ?? '';
         $slug = $_POST['slug'] ?: strtolower(str_replace(' ', '-', $name));
         $desc = $_POST['description'] ?? '';
@@ -360,6 +356,7 @@ class AdminController extends BaseController {
     }
 
     public function updateGroup() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $id = $_POST['id'] ?? null;
         $name = $_POST['name'] ?? '';
         $slug = $_POST['slug'] ?? '';
@@ -374,6 +371,7 @@ class AdminController extends BaseController {
     }
 
     public function deleteGroup() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $id = $_POST['id'] ?? null;
         if ($id) {
             $db = Database::getInstance();
@@ -432,6 +430,7 @@ class AdminController extends BaseController {
     }
 
     public function createBoard() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $groupId = $_POST['group_id'] ?? null;
         $title = $_POST['title'] ?? '';
         $slug = $_POST['slug'] ?: strtolower(str_replace(' ', '-', $title));
@@ -468,6 +467,7 @@ class AdminController extends BaseController {
     }
 
     public function updateBoard() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $id = $_POST['id'] ?? null;
         $groupId = $_POST['group_id'] ?? null;
         $title = $_POST['title'] ?? '';
@@ -504,6 +504,7 @@ class AdminController extends BaseController {
     }
 
     public function deleteBoard() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $id = $_POST['id'] ?? null;
         if ($id) {
             $db = Database::getInstance();
@@ -611,6 +612,7 @@ class AdminController extends BaseController {
 
     public function createPage() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
             $db = Database::getInstance();
             $title = $_POST['title'] ?? '';
             $slug = $_POST['slug'] ?: strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $title));
@@ -639,6 +641,7 @@ class AdminController extends BaseController {
         $id = $vars['id'];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
             $title = $_POST['title'] ?? '';
             $slug = $_POST['slug'] ?? '';
             $content = $_POST['content'] ?? '';
@@ -664,6 +667,7 @@ class AdminController extends BaseController {
     }
 
     public function deletePage() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
         $id = $_POST['id'] ?? null;
         if ($id) {
             $db = Database::getInstance();
@@ -674,12 +678,18 @@ class AdminController extends BaseController {
     }
 
     public function uploadPageImage() {
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) { http_response_code(403); echo json_encode(['error' => 'CSRF validation failed']); exit; }
         $uploadDir = '/data/page/';
         $fullPath = CM_PUBLIC_PATH . $uploadDir;
-        if (!is_dir($fullPath)) mkdir($fullPath, 0777, true);
+        if (!is_dir($fullPath)) mkdir($fullPath, 0755, true);
+        @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\n");
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            if ($_FILES['image']['size'] > 10485760) { http_response_code(413); echo json_encode(['error' => 'Too large']); exit; }
+            $ext = strtolower(pathinfo(basename($_FILES['image']['name']), PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true) || !@getimagesize($_FILES['image']['tmp_name'])) {
+                http_response_code(415); echo json_encode(['error' => 'Invalid image']); exit;
+            }
             $newName = 'page_' . uniqid() . '.' . $ext;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $fullPath . $newName)) {
                 echo json_encode(['url' => $uploadDir . $newName]);
@@ -736,16 +746,18 @@ class AdminController extends BaseController {
             ];
 
             foreach ($settings as $key => $value) {
+                $safe = '"' . addcslashes((string)$value, '"\\') . '"';
                 // If key exists, replace it
                 if (preg_match("/^$key=.*/m", $envContent)) {
-                    $envContent = preg_replace("/^$key=.*/m", "$key=\"$value\"", $envContent);
+                    $envContent = preg_replace("/^$key=.*/m", "$key=$safe", $envContent);
                 } else {
                     // If key doesn't exist, append it
-                    $envContent .= "\n$key=\"$value\"";
+                    $envContent .= "\n$key=$safe";
                 }
             }
 
-            file_put_contents($envPath, $envContent);
+            file_put_contents($envPath, $envContent, LOCK_EX);
+            @chmod($envPath, 0600);
         }
 
         $this->redirect('/admin/mail?msg=SMTP+Settings+Saved');
@@ -1114,223 +1126,5 @@ class AdminController extends BaseController {
         }
 
         $this->redirect('/admin/faq?msg=FAQ deleted');
-    }
-
-    // --- Product Manager Methods ---
-
-    public function products() {
-        $db = Database::getInstance();
-
-        // Auto-migration: Create/Expand tables for Open Market Mall
-        try {
-            // 1. Expand products table
-            $db->exec("CREATE TABLE IF NOT EXISTS `products` (
-                `id` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                `seller_id` VARCHAR(255) NOT NULL DEFAULT 'admin',
-                `name` VARCHAR(255) NOT NULL,
-                `description` TEXT,
-                `price` DECIMAL(10, 2) DEFAULT 0.00,
-                `point_reward` INT(11) DEFAULT 0,
-                `paddle_price_id` VARCHAR(100),
-                `type` ENUM('digital', 'physical') DEFAULT 'digital',
-                `stock` INT(11) DEFAULT 0,
-                `shipping_fee` DECIMAL(10, 2) DEFAULT 0.00,
-                `digital_link` TEXT,
-                `is_active` TINYINT(1) DEFAULT 1,
-                `status` ENUM('pending', 'active', 'suspended') DEFAULT 'active',
-                `display_order` INT(11) DEFAULT 0,
-                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_seller_id (seller_id)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-
-            // Migration: Add missing columns if table already existed from previous steps
-            $columns = $db->query("SHOW COLUMNS FROM products")->fetchAll(PDO::FETCH_COLUMN);
-            if (!in_array('seller_id', $columns)) $db->exec("ALTER TABLE products ADD COLUMN seller_id VARCHAR(255) NOT NULL DEFAULT 'admin' AFTER id, ADD INDEX idx_seller_id (seller_id)");
-            if (!in_array('type', $columns)) $db->exec("ALTER TABLE products ADD COLUMN type ENUM('digital', 'physical') DEFAULT 'digital' AFTER paddle_price_id");
-            if (!in_array('stock', $columns)) $db->exec("ALTER TABLE products ADD COLUMN stock INT(11) DEFAULT 0 AFTER type");
-            if (!in_array('shipping_fee', $columns)) $db->exec("ALTER TABLE products ADD COLUMN shipping_fee DECIMAL(10, 2) DEFAULT 0.00 AFTER stock");
-            if (!in_array('digital_link', $columns)) $db->exec("ALTER TABLE products ADD COLUMN digital_link TEXT AFTER shipping_fee");
-            if (!in_array('status', $columns)) $db->exec("ALTER TABLE products ADD COLUMN status ENUM('pending', 'active', 'suspended') DEFAULT 'active' AFTER is_active");
-
-            // 2. Create orders table
-            $db->exec("CREATE TABLE IF NOT EXISTS `orders` (
-                `id` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                `order_no` VARCHAR(50) NOT NULL UNIQUE,
-                `buyer_id` VARCHAR(255) NOT NULL,
-                `seller_id` VARCHAR(255) NOT NULL,
-                `product_id` INT(11) UNSIGNED NOT NULL,
-                `amount` DECIMAL(10, 2) NOT NULL,
-                `point_reward` INT(11) DEFAULT 0,
-                `status` ENUM('paid', 'shipping', 'delivered', 'completed', 'cancelled') DEFAULT 'paid',
-                `shipping_info` TEXT,
-                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_buyer (buyer_id),
-                INDEX idx_seller (seller_id),
-                INDEX idx_order_no (order_no)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-
-            // 3. Create settlements table
-            $db->exec("CREATE TABLE IF NOT EXISTS `settlements` (
-                `id` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                `seller_id` VARCHAR(255) NOT NULL,
-                `amount` DECIMAL(10, 2) NOT NULL,
-                `status` ENUM('request', 'approved', 'rejected', 'paid') DEFAULT 'request',
-                `request_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `process_date` TIMESTAMP NULL DEFAULT NULL,
-                `memo` TEXT,
-                INDEX idx_seller (seller_id)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-
-        } catch (\PDOException $e) {
-            // Silently ignore or log migration errors
-        }
-
-        $products = $db->query("SELECT * FROM products ORDER BY display_order ASC, created_at DESC")->fetchAll();
-
-        $this->view('shop/admin/products', [
-            'products' => $products,
-            'csrf_token' => \App\Core\Csrf::getToken()
-        ]);
-    }
-
-    public function createProduct() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
-
-        $name = trim($_POST['name'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $price = floatval($_POST['price'] ?? 0);
-        $pointReward = intval($_POST['point_reward'] ?? 0);
-        $paddlePriceId = trim($_POST['paddle_price_id'] ?? '');
-        $type = $_POST['type'] ?? 'digital';
-        $stock = intval($_POST['stock'] ?? 0);
-        $shippingFee = floatval($_POST['shipping_fee'] ?? 0);
-        $digitalLink = trim($_POST['digital_link'] ?? '');
-        $isActive = isset($_POST['is_active']) ? 1 : 0;
-        $status = $_POST['status'] ?? 'active';
-        $displayOrder = intval($_POST['display_order'] ?? 0);
-        $sellerId = $_SESSION['user']['user_id'] ?? 'admin';
-
-        if ($name) {
-            $db = Database::getInstance();
-            $stmt = $db->prepare("INSERT INTO products (name, description, price, point_reward, paddle_price_id, type, stock, shipping_fee, digital_link, is_active, status, display_order, seller_id) VALUES (:name, :description, :price, :point_reward, :paddle_price_id, :type, :stock, :shipping_fee, :digital_link, :is_active, :status, :display_order, :seller_id)");
-            $stmt->execute([
-                'name' => $name,
-                'description' => $description,
-                'price' => $price,
-                'point_reward' => $pointReward,
-                'paddle_price_id' => $paddlePriceId,
-                'type' => $type,
-                'stock' => $stock,
-                'shipping_fee' => $shippingFee,
-                'digital_link' => $digitalLink,
-                'is_active' => $isActive,
-                'status' => $status,
-                'display_order' => $displayOrder,
-                'seller_id' => $sellerId
-            ]);
-        }
-
-        $this->redirect('/admin/products?msg=Product created');
-    }
-
-    public function updateProduct() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
-
-        $id = $_POST['id'] ?? null;
-        $name = trim($_POST['name'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $price = floatval($_POST['price'] ?? 0);
-        $pointReward = intval($_POST['point_reward'] ?? 0);
-        $paddlePriceId = trim($_POST['paddle_price_id'] ?? '');
-        $type = $_POST['type'] ?? 'digital';
-        $stock = intval($_POST['stock'] ?? 0);
-        $shippingFee = floatval($_POST['shipping_fee'] ?? 0);
-        $digitalLink = trim($_POST['digital_link'] ?? '');
-        $isActive = isset($_POST['is_active']) ? 1 : 0;
-        $status = $_POST['status'] ?? 'active';
-        $displayOrder = intval($_POST['display_order'] ?? 0);
-
-        if ($id && $name) {
-            $db = Database::getInstance();
-            $stmt = $db->prepare("UPDATE products SET name = :name, description = :description, price = :price, point_reward = :point_reward, paddle_price_id = :paddle_price_id, type = :type, stock = :stock, shipping_fee = :shipping_fee, digital_link = :digital_link, is_active = :is_active, status = :status, display_order = :display_order WHERE id = :id");
-            $stmt->execute([
-                'name' => $name,
-                'description' => $description,
-                'price' => $price,
-                'point_reward' => $pointReward,
-                'paddle_price_id' => $paddlePriceId,
-                'type' => $type,
-                'stock' => $stock,
-                'shipping_fee' => $shippingFee,
-                'digital_link' => $digitalLink,
-                'is_active' => $isActive,
-                'status' => $status,
-                'display_order' => $displayOrder,
-                'id' => $id
-            ]);
-        }
-
-        $this->redirect('/admin/products?msg=Product updated');
-    }
-
-    public function deleteProduct() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
-
-        $id = $_POST['id'] ?? null;
-
-        if ($id) {
-            $db = Database::getInstance();
-            $stmt = $db->prepare("DELETE FROM products WHERE id = ?");
-            $stmt->execute([$id]);
-        }
-
-        $this->redirect('/admin/products?msg=Product deleted');
-    }
-
-    public function orders() {
-        $db = Database::getInstance();
-        $orders = $db->query("SELECT * FROM orders ORDER BY created_at DESC")->fetchAll();
-        $this->view('shop/admin/orders', ['orders' => $orders]);
-    }
-
-    public function sellers() {
-        $db = Database::getInstance();
-        // Sellers are users who have at least one product
-        $sellers = $db->query("SELECT DISTINCT seller_id FROM products")->fetchAll();
-        $this->view('shop/admin/sellers', ['sellers' => $sellers]);
-    }
-
-    public function settlements() {
-        $db = Database::getInstance();
-        $settlements = $db->query("SELECT * FROM settlements ORDER BY request_date DESC")->fetchAll();
-        $config = $db->query("SELECT mall_commission FROM config WHERE id = 1")->fetch();
-        $this->view('shop/admin/settlements', [
-            'settlements' => $settlements,
-            'commission' => $config['mall_commission'] ?? 10
-        ]);
-    }
-
-    public function approveSettlement() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
-        $id = $_POST['id'] ?? null;
-        if ($id) {
-            $db = Database::getInstance();
-            $stmt = $db->prepare("UPDATE settlements SET status = 'approved', process_date = CURRENT_TIMESTAMP WHERE id = ?");
-            $stmt->execute([$id]);
-        }
-        $this->redirect('/admin/settlements?msg=Settlement approved');
-    }
-
-    public function deleteSettlement() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
-        $id = $_POST['id'] ?? null;
-        if ($id) {
-            $db = Database::getInstance();
-            $stmt = $db->prepare("DELETE FROM settlements WHERE id = ?");
-            $stmt->execute([$id]);
-        }
-        $this->redirect('/admin/settlements?msg=Settlement deleted');
     }
 }

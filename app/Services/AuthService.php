@@ -20,8 +20,7 @@ class AuthService {
     public static function isAdmin() {
         if (!self::isMember()) return false;
         $user = self::user();
-        $level = isset($user['level']) ? (int)$user['level'] : 1;
-        return ((isset($user['role']) && $user['role'] === 'admin') || $level >= 5);
+        return (isset($user['role']) && $user['role'] === 'admin');
     }
 
     public static function user() {

@@ -3,3 +3,11 @@
     # Redirect all requests to the public directory
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
+
+# Block direct access to sensitive paths at document-root level
+<FilesMatch "^(\.env.*|composer\.(json|lock)|install\.lock)$">
+    Require all denied
+</FilesMatch>
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>

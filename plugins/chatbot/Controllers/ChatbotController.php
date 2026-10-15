@@ -258,6 +258,7 @@ class ChatbotController
 
     public function adminLogs()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); die('Forbidden'); }
         $db = Database::getInstance();
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $limit = 20;
@@ -308,6 +309,8 @@ class ChatbotController
 
     public function cleanupLogs()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); die('Forbidden'); }
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF validation failed'); }
         $db = Database::getInstance();
         $months = $_POST['months'] ?? '';
         

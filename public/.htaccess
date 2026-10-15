@@ -1,10 +1,23 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Block sensitive files
+    RewriteRule ^(\.env.*|composer\.(json|lock)|install\.lock)$ - [F,L]
+
     # Stop processing if the file or directory exists
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
 
     # Send all other requests to index.php
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Security headers (if headers module available)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>

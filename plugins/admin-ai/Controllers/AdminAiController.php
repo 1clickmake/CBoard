@@ -14,6 +14,8 @@ class AdminAiController
      */
     public function query()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); echo json_encode(['success' => false, 'message' => 'Forbidden']); return; }
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) { http_response_code(403); echo json_encode(['success' => false, 'message' => 'CSRF validation failed']); return; }
         header('Content-Type: application/json');
         
         try {
@@ -127,6 +129,7 @@ class AdminAiController
      */
     public function download()
     {
+        if (!\App\Services\AuthService::isAdmin()) { http_response_code(403); die('Forbidden'); }
         $type = $_GET['type'] ?? '';
         $level = $_GET['level'] ?? null;
         

@@ -5,6 +5,25 @@ namespace App\Services;
 use App\Core\Database;
 
 class FileService {
+    private $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+    private $allowedEditorExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    private $maxFileSize = 10485760; // 10MB
+
+    private function ensureUploadProtection($fullPath) {
+        if (!is_dir($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+        $ht = rtrim($fullPath, '/\\') . '/.htaccess';
+        if (!file_exists($ht)) {
+            @file_put_contents($ht, "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\nRemoveHandler .php .phtml\n");
+        }
+    }
+
+    private function safeSlug($slug) {
+        $slug = (string)$slug;
+        $slug = preg_replace('/[^a-zA-Z0-9_-]/', '', $slug);
+        return $slug !== '' ? $slug : 'default';
+    }
     
     public function handleUploads($postId, $boardSlug, $files) {
         if (empty($files) || !isset($files['name'][0]) || empty($files['name'][0])) {
@@ -14,22 +33,27 @@ class FileService {
         $db = Database::getInstance();
         $postId = (int)$postId;
         $basePublicPath = CM_PUBLIC_PATH;
+        $boardSlug = $this->safeSlug($boardSlug);
         $uploadDir = '/data/' . $boardSlug . '/';
         $fullPath = rtrim($basePublicPath, '/\\') . $uploadDir;
 
-        if (!is_dir($fullPath)) {
-            mkdir($fullPath, 0777, true);
-        }
+        $this->ensureUploadProtection($fullPath);
 
         foreach ($files['name'] as $key => $name) {
             if ($files['error'][$key] === UPLOAD_ERR_OK) {
+                if (($files['size'][$key] ?? 0) > $this->maxFileSize) continue;
                 $tmpName = $files['tmp_name'][$key];
                 $originalName = basename($name);
                 $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
                 
-                // Security check for extension
-                if (in_array($extension, ['php', 'php3', 'php4', 'phtml', 'exe', 'sh', 'bat'])) {
-                    continue; // Skip dangerous files
+                // Whitelist check
+                if (!in_array($extension, $this->allowedExtensions, true)) {
+                    continue;
+                }
+                // Verify MIME for images
+                if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+                    $info = @getimagesize($tmpName);
+                    if (!$info) continue;
                 }
 
                 $newName = uniqid() . '.' . $extension;
@@ -42,7 +66,12 @@ class FileService {
                         
                         $fileSize = (int)($files['size'][$key] ?? 0);
                         $cleanOriginalName = mb_substr($originalName, 0, 200, 'UTF-8');
-                        $fileType = substr($files['type'][$key] ?? 'application/octet-stream', 0, 90);
+                        $detected = 'application/octet-stream';
+                        if (function_exists('finfo_open')) {
+                            $f = finfo_open(FILEINFO_MIME_TYPE);
+                            if ($f) { $d = finfo_file($f, $tmpName); if ($d) $detected = $d; finfo_close($f); }
+                        }
+                        $fileType = substr($detected, 0, 90);
 
                         $stmt->execute([
                             ':post_id' => $postId,
@@ -66,20 +95,22 @@ class FileService {
     }
 
     public function uploadEditorImage($file, $boardSlug) {
+        $boardSlug = $this->safeSlug($boardSlug);
         $uploadDir = '/data/' . $boardSlug . '/';
         $fullPath = CM_PUBLIC_PATH . $uploadDir;
 
-        if (!is_dir($fullPath)) {
-            mkdir($fullPath, 0777, true);
-        }
+        $this->ensureUploadProtection($fullPath);
 
         if ($file['error'] === UPLOAD_ERR_OK) {
+            if (($file['size'] ?? 0) > $this->maxFileSize) return ['error' => 'File too large'];
             $originalName = basename($file['name']);
             $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
             
-            // Security check
-            if (in_array($extension, ['php', 'pl', 'py', 'asp', 'sh'])) {
+            if (!in_array($extension, $this->allowedEditorExtensions, true)) {
                 return ['error' => 'Invalid file type'];
+            }
+            if (!@getimagesize($file['tmp_name'])) {
+                return ['error' => 'Invalid image'];
             }
 
             $newName = 'editor_' . uniqid() . '.' . $extension;

@@ -19,7 +19,6 @@ return function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/admin', ['App\Controllers\AdminController', 'index']);
     $r->addRoute('GET', '/admin/config', ['App\Controllers\AdminController', 'config']);
     $r->addRoute('POST', '/admin/config', ['App\Controllers\AdminController', 'updateConfig']);
-    $r->addRoute('POST', '/admin/config/create-template', ['App\Controllers\AdminController', 'createTemplate']);
     $r->addRoute('POST', '/admin/config/upload-image', ['App\Controllers\AdminController', 'uploadImage']);
     $r->addRoute('GET', '/admin/users', ['App\Controllers\AdminController', 'users']);
     $r->addRoute('POST', '/admin/users/create', ['App\Controllers\AdminController', 'createUser']);
