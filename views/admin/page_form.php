@@ -3,9 +3,7 @@ $title = ($mode === 'create' ? 'Create Page' : 'Edit Page: ' . htmlspecialchars(
 include CM_LAYOUT_PATH . '/admin_header.php';
 ?>
 
-<!-- Quill.js Dependencies -->
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<?php do_action('board_editor_head'); ?>
 
 <div class="glass-card">
     <div class="admin-header-flex">
@@ -58,11 +56,9 @@ include CM_LAYOUT_PATH . '/admin_header.php';
                 </div>
             </div>
 
-            <!-- Visual Editor Container -->
+            <!-- Visual Editor Container (provided by editor plugin) -->
             <div id="visual-editor-wrapper" style="<?= ($page['editor_mode'] ?? 'visual') === 'visual' ? '' : 'display: none;' ?>">
-                <div id="editor-container" style="height: 500px;">
-                    
-                </div>
+                <?php do_action('board_editor', $_raw['page']['content'] ?? ''); ?>
             </div>
 
             <!-- Raw HTML Textarea -->
@@ -102,104 +98,7 @@ include CM_LAYOUT_PATH . '/admin_header.php';
         });
         <?php endif; ?>
 
-        // Initialize Quill
-        var quill = new Quill('#editor-container', {
-            modules: {
-                toolbar: {
-                    container: [
-                        [{ header: [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        ['blockquote', 'code-block'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'color': [] }, { 'background': [] }],
-                        ['link', 'image', 'clean']
-                    ],
-                    handlers: {
-                        image: imageHandler
-                    }
-                }
-            },
-            placeholder: 'Write your page content here...',
-            theme: 'snow'
-        });
-
-        // Expose quill globally so plugins can interact with it
-        window.pageEditor = quill;
-
-        // Set initial content
-        const initialContent = $('#html_content').val();
-        if (initialContent) {
-            quill.clipboard.dangerouslyPasteHTML(initialContent);
-        }
-
-        let isDirty = false;
-        quill.on('text-change', function(delta, oldDelta, source) {
-            if (source === 'user') {
-                isDirty = true;
-            }
-        });
-
-        function imageHandler() {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
-
-            input.onchange = () => {
-                const file = input.files[0];
-                const formData = new FormData();
-                formData.append('image', file);
-
-                fetch('/admin/pages/upload-image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(result => {
-                    const range = quill.getSelection(true);
-                    quill.insertEmbed(range.index, 'image', result.url);
-                    quill.setSelection(range.index + 1);
-                })
-                .catch(error => console.error('Error:', error));
-            };
-        }
-
-        // Mode Switching Logic
-        $('input[name="editor_mode"]').change(function() {
-            if (this.value === 'html') {
-                // Switching to HTML Mode
-                // Only sync from Quill if user has edited in Visual mode
-                if (isDirty) {
-                    $('#html_content').val(quill.root.innerHTML);
-                }
-                $('#visual-editor-wrapper').hide();
-                $('#html-editor-wrapper').show();
-            } else {
-                // Switching to Visual Mode
-                // Load content from Textarea to Quill
-                quill.clipboard.dangerouslyPasteHTML($('#html_content').val());
-                
-                // Reset dirty flag since we just loaded fresh content
-                isDirty = false; 
-                
-                $('#html-editor-wrapper').hide();
-                $('#visual-editor-wrapper').show();
-            }
-        });
-
-        // Form Submission
-        $('#pageForm').on('submit', function() {
-            var mode = $('input[name="editor_mode"]:checked').val();
-            
-            if (mode === 'html') {
-                // If in HTML mode, save from textarea
-                $('#content_input').val($('#html_content').val());
-            } else {
-                // If in Visual mode, save from Quill
-                $('#content_input').val(quill.root.innerHTML);
-            }
-        });
-
+        <?php do_action('board_editor_scripts', $csrf_token ?? '', '', ['formId' => 'pageForm', 'contentId' => 'content_input', 'htmlId' => 'html_content', 'uploadUrl' => '/admin/pages/upload-image', 'height' => '500px', 'exposeAs' => 'pageEditor']); ?>
         // Let plugins add their own JS logic
         <?php do_action('admin_page_form_scripts'); ?>
     });

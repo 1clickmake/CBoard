@@ -24,14 +24,33 @@ add_action('board_editor', function($initialHtml = '') {
 <?php
 });
 
-// 3. Editor runtime + board integration (image upload, mode switch, submit)
-add_action('board_editor_scripts', function($csrf_token = '', $boardSlug = '') {
+// 3. Editor runtime + integration (image upload, mode switch, submit)
+//
+// $options:
+//   formId    - form element id (default: writeForm)
+//   contentId - hidden input id receiving HTML on submit (default: content)
+//   htmlId    - raw HTML textarea id (default: html_content)
+//   uploadUrl - image upload endpoint; null = '/board/upload-image/{slug}' (default: null)
+//   height    - editor height (default: 400px)
+//   exposeAs  - extra window global exposing {clipboard:{dangerouslyPasteHTML}}
+//               for legacy integrations, e.g. 'pageEditor' (default: null)
+add_action('board_editor_scripts', function($csrf_token = '', $boardSlug = '', $options = []) {
+    $formId = $options['formId'] ?? 'writeForm';
+    $contentId = $options['contentId'] ?? 'content';
+    $htmlId = $options['htmlId'] ?? 'html_content';
+    $uploadUrl = $options['uploadUrl'] ?? ('/board/upload-image/' . $boardSlug);
+    $height = $options['height'] ?? '400px';
+    $exposeAs = $options['exposeAs'] ?? null;
 ?>
 <script src="/asamiya-editor/asset/js"></script>
 <script>
 (function() {
     const ASAMIYA_CSRF = <?= json_encode((string)$csrf_token) ?>;
-    const ASAMIYA_SLUG = <?= json_encode((string)$boardSlug) ?>;
+    const ASAMIYA_UPLOAD_URL = <?= json_encode((string)$uploadUrl) ?>;
+    const FORM_ID = <?= json_encode((string)$formId) ?>;
+    const CONTENT_ID = <?= json_encode((string)$contentId) ?>;
+    const HTML_ID = <?= json_encode((string)$htmlId) ?>;
+    const EXPOSE_AS = <?= json_encode($exposeAs) ?>;
 
     // Route the Asamiya image button through our secured upload endpoint
     // (field: image + csrf_token, matching BoardController::uploadEditorImage)
@@ -48,7 +67,7 @@ add_action('board_editor_scripts', function($csrf_token = '', $boardSlug = '') {
             formData.append('image', file);
             formData.append('csrf_token', ASAMIYA_CSRF);
 
-            fetch('/board/upload-image/' + encodeURIComponent(ASAMIYA_SLUG), {
+            fetch(ASAMIYA_UPLOAD_URL, {
                 method: 'POST',
                 body: formData
             })
@@ -71,20 +90,29 @@ add_action('board_editor_scripts', function($csrf_token = '', $boardSlug = '') {
     // Initial content comes from #asamiya-editor innerHTML
     window.asamiyaEditor = new AsamiyaEditor('#asamiya-editor', {
         placeholder: 'Write your content here...',
-        height: '400px'
+        height: <?= json_encode((string)$height) ?>
     });
 
     const editor = window.asamiyaEditor;
+
+    // Legacy compat (e.g. ai-manager expects window.pageEditor.clipboard.dangerouslyPasteHTML)
+    if (EXPOSE_AS) {
+        window[EXPOSE_AS] = {
+            clipboard: {
+                dangerouslyPasteHTML: function(html) { editor.setHTML(html); }
+            }
+        };
+    }
 
     // Visual/HTML mode switching
     document.querySelectorAll('input[name="editor_mode"]').forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'html') {
-                document.getElementById('html_content').value = editor.getHTML();
+                document.getElementById(HTML_ID).value = editor.getHTML();
                 document.getElementById('visual-editor-wrapper').style.display = 'none';
                 document.getElementById('html-editor-wrapper').style.display = '';
             } else {
-                editor.setHTML(document.getElementById('html_content').value);
+                editor.setHTML(document.getElementById(HTML_ID).value);
                 document.getElementById('html-editor-wrapper').style.display = 'none';
                 document.getElementById('visual-editor-wrapper').style.display = '';
             }
@@ -92,13 +120,13 @@ add_action('board_editor_scripts', function($csrf_token = '', $boardSlug = '') {
     });
 
     // Submit: copy editor content into the hidden field
-    const form = document.getElementById('writeForm');
+    const form = document.getElementById(FORM_ID);
     if (form) {
         form.addEventListener('submit', function() {
             const mode = document.querySelector('input[name="editor_mode"]:checked');
-            const content = document.getElementById('content');
+            const content = document.getElementById(CONTENT_ID);
             if (mode && mode.value === 'html') {
-                content.value = document.getElementById('html_content').value;
+                content.value = document.getElementById(HTML_ID).value;
             } else {
                 content.value = editor.getHTML();
             }
