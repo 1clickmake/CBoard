@@ -2,7 +2,7 @@
 $title = isset($post) ? 'Edit Post' : 'Write Post';
 include_header($title, $siteConfig); 
 ?>
-<style><?php include CM_BOARD_SKINS_PATH . '/gallery/style.css'; ?></style>
+<?php if (file_exists(CM_BOARD_SKINS_PATH . '/gallery/style.css')): ?><style><?php include CM_BOARD_SKINS_PATH . '/gallery/style.css'; ?></style><?php endif; ?>
 
 <?php do_action('board_editor_head'); ?>
 

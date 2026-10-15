@@ -1,5 +1,5 @@
 <?php $title = $board['title']; include_header($title, $siteConfig); ?>
-<style><?php include CM_BOARD_SKINS_PATH . '/gallery/style.css'; ?></style>
+<?php if (file_exists(CM_BOARD_SKINS_PATH . '/gallery/style.css')): ?><style><?php include CM_BOARD_SKINS_PATH . '/gallery/style.css'; ?></style><?php endif; ?>
 
 <div class="container gallery-container">
     <div class="gallery-header">
