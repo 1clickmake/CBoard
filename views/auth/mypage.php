@@ -57,6 +57,47 @@
 
             <hr class="mypage-divider">
 
+            <h3 class="mypage-section-title">Two-Factor Authentication</h3>
+            <?php if (isset($_GET['2fa'])): ?>
+                <div class="alert <?= in_array($_GET['2fa'], ['enabled']) ? 'alert-success' : 'alert-danger' ?> mypage-alert-success">
+                    <?php if ($_GET['2fa'] === 'setup'): ?>Scan the code below with your authenticator app, then enter the 6-digit code.<?php endif; ?>
+                    <?php if ($_GET['2fa'] === 'enabled'): ?>Two-factor authentication enabled.<?php endif; ?>
+                    <?php if ($_GET['2fa'] === 'disabled'): ?>Two-factor authentication disabled.<?php endif; ?>
+                    <?php if ($_GET['2fa'] === 'invalid'): ?>Invalid authentication code. Please try again.<?php endif; ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($twoFaEnabled)): ?>
+                <p class="text-muted-small">2FA is currently <strong>enabled</strong> on your account.</p>
+                <form action="/profile/2fa/disable" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                    <div class="mypage-form-group">
+                        <label>Current Password</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-logout">Disable 2FA</button>
+                </form>
+            <?php elseif (!empty($twoFaSetup)): ?>
+                <p class="text-muted-small">Add this secret to your authenticator app (Google/Microsoft Authenticator, 1Password):</p>
+                <p><code><?= htmlspecialchars($twoFaSetup['secret']) ?></code></p>
+                <p class="text-muted-small">Manual entry URI: <code><?= htmlspecialchars($twoFaSetup['uri']) ?></code></p>
+                <form action="/profile/2fa/confirm" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                    <div class="mypage-form-group">
+                        <label>6-digit Code</label>
+                        <input type="text" name="otp" class="form-control" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-w-100">Confirm & Enable</button>
+                </form>
+            <?php else: ?>
+                <p class="text-muted-small">Protect your account with an authenticator app.</p>
+                <form action="/profile/2fa/enable" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                    <button type="submit" class="btn btn-primary btn-w-100">Enable 2FA</button>
+                </form>
+            <?php endif; ?>
+
+            <hr class="mypage-divider">
+
             <form action="/profile/delete" method="POST" onsubmit="return confirm('WARNING: Are you sure you want to delete your account? This action cannot be undone.')">
                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                 <button type="submit" class="btn-delete-account">

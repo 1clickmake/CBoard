@@ -10,6 +10,11 @@ return function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/register', ['App\Controllers\AuthController', 'showRegister']);
     $r->addRoute('POST', '/register', ['App\Controllers\AuthController', 'register']);
     $r->addRoute('GET', '/logout', ['App\Controllers\AuthController', 'logout']);
+    $r->addRoute('GET', '/login/2fa', ['App\Controllers\AuthController', 'showTwoFactor']);
+    $r->addRoute('POST', '/login/2fa', ['App\Controllers\AuthController', 'verifyTwoFactor']);
+    $r->addRoute('POST', '/profile/2fa/enable', ['App\Controllers\AuthController', 'enableTwoFactor']);
+    $r->addRoute('POST', '/profile/2fa/confirm', ['App\Controllers\AuthController', 'confirmTwoFactor']);
+    $r->addRoute('POST', '/profile/2fa/disable', ['App\Controllers\AuthController', 'disableTwoFactor']);
     $r->addRoute('GET', '/mypage', ['App\Controllers\AuthController', 'mypage']);
     $r->addRoute('POST', '/profile/update', ['App\Controllers\AuthController', 'updateProfile']);
     $r->addRoute('POST', '/profile/delete', ['App\Controllers\AuthController', 'deleteAccount']);

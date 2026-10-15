@@ -20,6 +20,12 @@
                 <label>Password</label>
                 <input type="password" name="password" class="form-control" required>
             </div>
+            <?php if (isset($captcha_q)): ?>
+            <div class="form-group mb-3">
+                <label><?= htmlspecialchars($captcha_q) ?></label>
+                <input type="text" name="captcha_answer" class="form-control" required inputmode="numeric" autocomplete="off">
+            </div>
+            <?php endif; ?>
             <button type="submit" class="btn btn-primary btn-auth-submit">Sign In</button>
         </form>
         

@@ -131,7 +131,7 @@ CMAKE_v1/
 
 - **버전**: CMAKE v1.0
 - **개발 상태**: Production Ready ✅
-- **라이선스**: MIT (누구나 무료 사용 가능)
+- **라이선스**: Core MIT + 플러그인 별도 라이선스 (`LICENSE`, `plugins/*/LICENSE` 참조)
 - **마지막 업데이트**: 2026-02-19
 
 ---

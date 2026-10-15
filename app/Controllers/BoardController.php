@@ -209,8 +209,8 @@ class BoardController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
 
-            $title = $_POST['title'] ?? '';
-            $content = $_POST['content'] ?? '';
+            $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
+            $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $editor_mode = $_POST['editor_mode'] ?? 'visual';
             
             $user = \App\Services\AuthService::user();
@@ -277,8 +277,8 @@ class BoardController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
 
-            $title = $_POST['title'] ?? '';
-            $content = $_POST['content'] ?? '';
+            $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
+            $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $editor_mode = $_POST['editor_mode'] ?? 'visual';
             
             $stmt = $db->prepare("UPDATE posts SET title = :title, content = :content, editor_mode = :editor_mode WHERE id = :id");
@@ -336,25 +336,8 @@ class BoardController extends BaseController {
         $this->view($viewPath, ['post' => $post, 'files' => $files, 'board' => $board]);
     }
 
-    public function delete($vars) {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Csrf::verify($_POST['csrf_token'] ?? '')) {
-             die("CSRF validation failed");
-        }
-        $id = $vars['id'];
-        $db = Database::getInstance();
-        
-        $stmt = $db->prepare("SELECT p.*, b.slug as board_slug 
-                              FROM posts p 
-                              JOIN boards b ON p.board_id = b.id 
-                              WHERE p.id = :id");
-        $stmt->execute(['id' => $id]);
-        $post = $stmt->fetch();
-
-        if (!$post || (!isset($_SESSION['user']) || ($_SESSION['user']['user_id'] != $post['user_id'] && $_SESSION['user']['role'] != 'admin'))) {
-            die("Unauthorized");
-        }
-
-        // 1. Delete physical files from post_files table
+    private function removePostRecords($db, $id, $post) {
+        // Delete physical files from post_files table
         $stmt = $db->prepare("SELECT * FROM post_files WHERE post_id = :id");
         $stmt->execute(['id' => $id]);
         $files = $stmt->fetchAll();
@@ -362,7 +345,7 @@ class BoardController extends BaseController {
         foreach ($files as $file) {
              $fileService->deleteFile($file['filepath']);
         }
-        
+
         // Delete download logs associated with these files
         $stmt = $db->prepare("DELETE FROM file_downloads WHERE file_id IN (SELECT id FROM post_files WHERE post_id = :id)");
         $stmt->execute(['id' => $id]);
@@ -371,26 +354,56 @@ class BoardController extends BaseController {
         $stmt = $db->prepare("DELETE FROM post_files WHERE post_id = :id");
         $stmt->execute(['id' => $id]);
 
-        // 2. Scan content for editor images and delete them
+        // Scan content for editor images and delete them
         preg_match_all('/<img[^>]+src="([^">]+)"/i', $post['content'], $matches);
         if (!empty($matches[1])) {
             foreach ($matches[1] as $src) {
                 // Only delete if it's a local path in /data/
-                if (strpos($src, '/data/') === 0) {
-                    $filePath = CM_PUBLIC_PATH . $src;
-                    if (file_exists($filePath)) unlink($filePath);
+                if (strpos($src, '/data/') === 0 && strpos($src, '..') === false) {
+                    $filePath = realpath(CM_PUBLIC_PATH . $src);
+                    $base = realpath(CM_PUBLIC_PATH . '/data');
+                    if ($filePath && $base && strpos($filePath, $base) === 0 && is_file($filePath)) unlink($filePath);
                 }
             }
         }
 
-        // 2.5 Delete all comments associated with the post
+        // Delete all comments associated with the post
         $stmt = $db->prepare("DELETE FROM comments WHERE post_id = :id");
         $stmt->execute(['id' => $id]);
 
-        // 3. Delete from DB
+        // Delete from DB
         $stmt = $db->prepare("DELETE FROM posts WHERE id = :id");
         $stmt->execute(['id' => $id]);
-        
+    }
+
+    public function delete($vars) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Csrf::verify($_POST['csrf_token'] ?? '')) {
+             die("CSRF validation failed");
+        }
+        $id = $vars['id'];
+        $db = Database::getInstance();
+
+        $stmt = $db->prepare("SELECT p.*, b.slug as board_slug
+                              FROM posts p
+                              JOIN boards b ON p.board_id = b.id
+                              WHERE p.id = :id");
+        $stmt->execute(['id' => $id]);
+        $post = $stmt->fetch();
+
+        if (!$post || (!isset($_SESSION['user']) || ($_SESSION['user']['user_id'] != $post['user_id'] && $_SESSION['user']['role'] != 'admin'))) {
+            die("Unauthorized");
+        }
+
+        try {
+            $db->beginTransaction();
+            $this->removePostRecords($db, $id, $post);
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            error_log('Post delete failed: ' . $e->getMessage());
+            die("Delete failed. Please try again.");
+        }
+
         $this->redirect('/board/' . $post['board_slug']);
     }
 
@@ -410,50 +423,24 @@ class BoardController extends BaseController {
         }
 
         $db = Database::getInstance();
-        
-        foreach ($postIds as $id) {
-            // 1. Get post for file deletion
-            $stmt = $db->prepare("SELECT * FROM posts WHERE id = :id");
-            $stmt->execute(['id' => $id]);
-            $post = $stmt->fetch();
 
-            if ($post) {
-                // Delete physical files from post_files
-                $stmt = $db->prepare("SELECT * FROM post_files WHERE post_id = :id");
+        try {
+            $db->beginTransaction();
+            foreach ($postIds as $id) {
+                // 1. Get post for file deletion
+                $stmt = $db->prepare("SELECT * FROM posts WHERE id = :id");
                 $stmt->execute(['id' => $id]);
-                $files = $stmt->fetchAll();
-                $fileService = new FileService();
-                foreach ($files as $file) {
-                    $fileService->deleteFile($file['filepath']);
+                $post = $stmt->fetch();
+
+                if ($post) {
+                    $this->removePostRecords($db, $id, $post);
                 }
-
-                // Delete download logs associated with these files
-                $stmt = $db->prepare("DELETE FROM file_downloads WHERE file_id IN (SELECT id FROM post_files WHERE post_id = :id)");
-                $stmt->execute(['id' => $id]);
-
-                // Remove file records from DB
-                $stmt = $db->prepare("DELETE FROM post_files WHERE post_id = :id");
-                $stmt->execute(['id' => $id]);
-
-                // Delete editor images
-                preg_match_all('/<img[^>]+src="([^">]+)"/i', $post['content'], $matches);
-                if (!empty($matches[1])) {
-                    foreach ($matches[1] as $src) {
-                        if (strpos($src, '/data/') === 0) {
-                            $filePath = CM_PUBLIC_PATH . $src;
-                            if (file_exists($filePath)) unlink($filePath);
-                        }
-                    }
-                }
-
-                // Delete comments associated with the post
-                $stmt = $db->prepare("DELETE FROM comments WHERE post_id = :id");
-                $stmt->execute(['id' => $id]);
-
-                // Delete from DB
-                $stmt = $db->prepare("DELETE FROM posts WHERE id = :id");
-                $stmt->execute(['id' => $id]);
             }
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            error_log('Bulk delete failed: ' . $e->getMessage());
+            die("Bulk delete failed. Please try again.");
         }
 
         $this->redirect('/board/' . $slug);
@@ -489,7 +476,7 @@ class BoardController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
             
-            $content = $_POST['content'] ?? '';
+            $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $editor_mode = $_POST['editor_mode'] ?? 'visual';
 
             $stmt = $db->prepare("INSERT INTO posts (group_id, board_id, user_id, parent_id, title, content, reply_depth, editor_mode) VALUES (:group_id, :board_id, :user_id, :parent_id, :title, :content, 1, :editor_mode)");
@@ -535,7 +522,8 @@ class BoardController extends BaseController {
         }
 
         $postId = $_POST['post_id'] ?? null;
-        $content = $_POST['content'] ?? '';
+        $content = trim(strip_tags($_POST['content'] ?? ''));
+        $content = mb_substr($content, 0, 2000);
         $parentCommentId = $_POST['parent_comment_id'] ?? null;
 
         if (!$postId || !$content) {

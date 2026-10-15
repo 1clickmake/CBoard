@@ -24,7 +24,7 @@ class HomeController extends BaseController {
 
         // Load template-specific main page
         $templatePath = "templates/{$template}/main";
-        $this->view($templatePath, ['groups' => $groups, 'config' => $config]);
+        $this->view($templatePath, ['groups' => $groups, 'config' => $config, 'captcha_q' => \App\Core\Captcha::generate()]);
     }
 
     public function page($vars) {
@@ -55,6 +55,9 @@ class HomeController extends BaseController {
 
         if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) {
             $this->json(['success' => false, 'message' => 'CSRF validation failed']);
+        }
+        if (!\App\Core\Captcha::verify($_POST['captcha_answer'] ?? '')) {
+            $this->json(['success' => false, 'message' => 'CAPTCHA verification failed', 'captcha_q' => \App\Core\Captcha::generate()]);
         }
 
         $name        = trim($_POST['name'] ?? '');
@@ -102,9 +105,9 @@ class HomeController extends BaseController {
         $result = \Mailer::send($to, $subject, $content, [], true, $extraLogData);
 
         if ($result['success']) {
-            $this->json(['success' => true, 'message' => 'Message sent successfully']);
+            $this->json(['success' => true, 'message' => 'Message sent successfully', 'captcha_q' => \App\Core\Captcha::generate()]);
         } else {
-            $this->json(['success' => false, 'message' => $result['message']]);
+            $this->json(['success' => false, 'message' => $result['message'], 'captcha_q' => \App\Core\Captcha::generate()]);
         }
     }
 

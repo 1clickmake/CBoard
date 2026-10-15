@@ -614,9 +614,9 @@ class AdminController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
             $db = Database::getInstance();
-            $title = $_POST['title'] ?? '';
+            $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $slug = $_POST['slug'] ?: strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $title));
-            $content = $_POST['content'] ?? '';
+            $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $display_title = isset($_POST['display_title']) ? 1 : 0;
             $use_card_style = isset($_POST['use_card_style']) ? 1 : 0;
 
@@ -642,9 +642,9 @@ class AdminController extends BaseController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
-            $title = $_POST['title'] ?? '';
+            $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $slug = $_POST['slug'] ?? '';
-            $content = $_POST['content'] ?? '';
+            $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $display_title = isset($_POST['display_title']) ? 1 : 0;
             $use_card_style = isset($_POST['use_card_style']) ? 1 : 0;
 

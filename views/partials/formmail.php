@@ -34,6 +34,11 @@
                 <textarea name="message" rows="5" required placeholder="Enter your message here..."></textarea>
             </div>
 
+            <div class="form-group">
+                <label><span id="captcha-q"><?= htmlspecialchars($captcha_q ?? '') ?></span></label>
+                <input type="text" name="captcha_answer" required placeholder="Enter the answer" autocomplete="off">
+            </div>
+
             <div class="form-footer">
                 <button type="submit" id="btn-submit-contact">
                     <i class="fa-solid fa-paper-plane"></i> Send Message

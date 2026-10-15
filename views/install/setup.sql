@@ -4,7 +4,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
     `id` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '고유 식별 ID',
-    `user_id` VARCHAR(255) NOT NULL UNIQUE COMMENT '사용자 아이디',
+    `user_id` VARCHAR(191) NOT NULL UNIQUE COMMENT '사용자 아이디',
     `username` VARCHAR(50) NOT NULL UNIQUE COMMENT '사용자 이름',
     `password` VARCHAR(255) NOT NULL COMMENT '암호화된 비밀번호',
     `email` VARCHAR(100) NOT NULL UNIQUE COMMENT '이메일 주소',
@@ -12,8 +12,9 @@ CREATE TABLE IF NOT EXISTS `users` (
     `point` INT(11) DEFAULT 0 COMMENT '포인트',
     `level` INT(11) DEFAULT 1 COMMENT '레벨',
     `country` VARCHAR(50) DEFAULT 'Unknown' COMMENT '접속 국가',
+    `two_factor_secret` VARCHAR(64) DEFAULT NULL COMMENT 'TOTP 2FA 시크릿',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '가입 일시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '사용자 정보 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '사용자 정보 테이블';
 
 -- 사이트 정보 설정 테이블
 DROP TABLE IF EXISTS `config`;
@@ -37,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `config` (
     `blocked_ips` TEXT COMMENT '접속 차단 IP 목록',
     `faq_category` VARCHAR(255) DEFAULT '회원|포인트|게시판|기타' COMMENT 'FAQ 카테고리',
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '사이트 정보 설정 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '사이트 정보 설정 테이블';
 
 -- 독립 페이지 관리 테이블
 DROP TABLE IF EXISTS `pages`;
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `pages` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     INDEX `idx_slug` (`slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '독립 페이지 관리 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '독립 페이지 관리 테이블';
 
 -- 기본 독립 페이지 생성
 INSERT INTO `pages` (`title`, `slug`, `content`) VALUES 
@@ -72,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `board_groups` (
     `description` TEXT COMMENT '그룹 설명',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     INDEX `idx_slug` (`slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '게시판 그룹 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '게시판 그룹 테이블';
 
 -- 게시판 설정 테이블
 DROP TABLE IF EXISTS `boards`;
@@ -97,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `boards` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     INDEX `idx_group_id` (`group_id`),
     INDEX `idx_slug` (`slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '게시판 설정 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '게시판 설정 테이블';
 
 -- 기본 게시판 그룹 및 게시판 생성
 INSERT INTO `board_groups` (`id`, `name`, `slug`, `description`) VALUES (1, 'community', 'community', 'community group');
@@ -122,9 +123,10 @@ CREATE TABLE IF NOT EXISTS `posts` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '작성 일시',
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     INDEX `idx_board_id` (`board_id`),
+    INDEX `idx_board_list` (`board_id`, `reply_depth`, `created_at`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_parent_id` (`parent_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '게시글 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '게시글 테이블';
 
 -- 댓글 테이블
 DROP TABLE IF EXISTS `comments`;
@@ -139,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     INDEX `idx_post_id` (`post_id`),
     INDEX `idx_parent_comment_id` (`parent_comment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '댓글 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '댓글 테이블';
 
 -- 게시글 첨부 파일 테이블
 DROP TABLE IF EXISTS `post_files`;
@@ -153,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `post_files` (
     `file_type` VARCHAR(100) COMMENT '파일 타입',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '업로드 일시',
     INDEX `idx_post_id` (`post_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '게시글 첨부 파일 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '게시글 첨부 파일 테이블';
 
 -- 파일 다운로드 기록 테이블
 DROP TABLE IF EXISTS `file_downloads`;
@@ -164,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `file_downloads` (
     `ip_address` VARCHAR(45) NOT NULL COMMENT '다운로드 IP 주소',
     `download_count` INT(11) DEFAULT 1 COMMENT '다운로드 횟수',
     `last_downloaded_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '마지막 다운로드 일시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '파일 다운로드 기록 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '파일 다운로드 기록 테이블';
 
 -- 접속자 로그 테이블
 DROP TABLE IF EXISTS `visitor_logs`;
@@ -178,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `visitor_logs` (
     `visit_time` TIME NOT NULL COMMENT '접속 시간',
     `last_active_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '마지막 활성 시간',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '기록 일시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '접속자 로그 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '접속자 로그 테이블';
 
 CREATE INDEX idx_visit_date ON visitor_logs(visit_date);
 CREATE INDEX idx_ip_date ON visitor_logs(ip_address, visit_date);
@@ -191,8 +193,9 @@ CREATE TABLE IF NOT EXISTS `point_log` (
     `point` INT(11) NOT NULL COMMENT '지급/차감 포인트',
     `rel_msg` VARCHAR(255) DEFAULT '' COMMENT '관련 사유/메시지',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '일시',
-    INDEX `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '포인트 이력 테이블';
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '포인트 이력 테이블';
 
 -- 메일 발송 로그 테이블
 DROP TABLE IF EXISTS `mail_logs`;
@@ -208,8 +211,9 @@ CREATE TABLE IF NOT EXISTS `mail_logs` (
     `attachments` TEXT DEFAULT NULL COMMENT '첨부 파일 목록',
     `status` VARCHAR(20) NOT NULL DEFAULT 'success' COMMENT '발송 상태',
     `error_message` TEXT DEFAULT NULL COMMENT '에러 메시지',
-    `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '발송 일시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '메일 발송 로그 테이블';
+    `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '발송 일시',
+    INDEX `idx_sent_at` (`sent_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '메일 발송 로그 테이블';
 
 -- FAQ 테이블
 DROP TABLE IF EXISTS `faq`;
@@ -221,7 +225,7 @@ CREATE TABLE IF NOT EXISTS `faq` (
     `display_order` INT(11) DEFAULT 0 COMMENT '출력 순서',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'FAQ 테이블';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT 'FAQ 테이블';
 
 
 

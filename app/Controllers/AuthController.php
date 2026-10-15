@@ -12,7 +12,25 @@ class AuthController extends BaseController {
         if ($is_member) {
             $this->redirect('/');
         }
-        $this->view('auth/login', ['csrf_token' => Csrf::getToken()]);
+        $failCount = (int)($_SESSION['login_fail_count'] ?? 0);
+        $data = ['csrf_token' => Csrf::getToken()];
+        if ($failCount >= 3) $data['captcha_q'] = \App\Core\Captcha::generate();
+        $this->view('auth/login', $data);
+    }
+
+    private function completeLogin($user) {
+        unset($_SESSION['rate_limit_login'], $_SESSION['login_fail_count'], $_SESSION['2fa_pending']);
+        session_regenerate_id(true);
+        unset($user['password']);
+        // Refresh 2FA status from DB (may have changed)
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT two_factor_secret FROM users WHERE id = ?");
+            $stmt->execute([$user['id']]);
+            $user['two_factor_secret'] = $stmt->fetchColumn() ?: null;
+        } catch (\Throwable $e) {}
+        $_SESSION['user'] = $user;
+        $this->redirect('/');
     }
 
     public function login() {
@@ -27,6 +45,14 @@ class AuthController extends BaseController {
             return;
         }
 
+        // CAPTCHA after 3 failed attempts
+        if ((int)($_SESSION['login_fail_count'] ?? 0) >= 3) {
+            if (!\App\Core\Captcha::verify($_POST['captcha_answer'] ?? '')) {
+                $this->view('auth/login', ['error' => 'CAPTCHA verification failed', 'captcha_q' => \App\Core\Captcha::generate()]);
+                return;
+            }
+        }
+
         $userId = $_POST['user_id'] ?? '';
         $password = $_POST['password'] ?? '';
 
@@ -36,21 +62,53 @@ class AuthController extends BaseController {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
-            // Reset rate limit on successful login
-            unset($_SESSION['rate_limit_login']);
-            session_regenerate_id(true);
-            unset($user['password']);
-            $_SESSION['user'] = $user;
-
-            
-            $this->redirect('/');
+            unset($_SESSION['login_fail_count']);
+            // 2FA enabled? Defer full login until OTP verified
+            if (!empty($user['two_factor_secret'])) {
+                session_regenerate_id(true);
+                $_SESSION['2fa_pending'] = (int)$user['id'];
+                $this->redirect('/login/2fa');
+                return;
+            }
+            $this->completeLogin($user);
         } else {
-            $this->view('auth/login', ['error' => 'Invalid User ID or password']);
+            $_SESSION['login_fail_count'] = (int)($_SESSION['login_fail_count'] ?? 0) + 1;
+            $data = ['error' => 'Invalid User ID or password'];
+            if ($_SESSION['login_fail_count'] >= 3) $data['captcha_q'] = \App\Core\Captcha::generate();
+            $this->view('auth/login', $data);
+        }
+    }
+
+    public function showTwoFactor() {
+        if (empty($_SESSION['2fa_pending'])) $this->redirect('/login');
+        $this->view('auth/2fa', ['csrf_token' => Csrf::getToken()]);
+    }
+
+    public function verifyTwoFactor() {
+        $pendingId = (int)($_SESSION['2fa_pending'] ?? 0);
+        if (!$pendingId) $this->redirect('/login');
+        if (!Csrf::verify($_POST['csrf_token'] ?? '')) {
+            $this->view('auth/2fa', ['error' => 'Invalid Security Token']);
+            return;
+        }
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->execute([$pendingId]);
+        $user = $stmt->fetch();
+        if (!$user || empty($user['two_factor_secret'])) {
+            unset($_SESSION['2fa_pending']);
+            $this->redirect('/login');
+            return;
+        }
+        if (\App\Core\Totp::verify($user['two_factor_secret'], $_POST['otp'] ?? '')) {
+            $this->completeLogin($user);
+        } else {
+            $this->view('auth/2fa', ['error' => 'Invalid authentication code']);
         }
     }
 
     public function showRegister() {
-        $this->view('auth/register', ['csrf_token' => Csrf::getToken()]);
+        $this->view('auth/register', ['csrf_token' => Csrf::getToken(), 'captcha_q' => \App\Core\Captcha::generate()]);
     }
 
     public function register() {
@@ -60,6 +118,9 @@ class AuthController extends BaseController {
         if (!Csrf::verify($_POST['csrf_token'] ?? '')) {
             $this->view('auth/register', ['error' => 'Invalid Security Token']);
             return;
+        }
+        if (!\App\Core\Captcha::verify($_POST['captcha_answer'] ?? '')) {
+            return $this->view('auth/register', ['error' => 'CAPTCHA verification failed', 'captcha_q' => \App\Core\Captcha::generate()]);
         }
 
         $userId = $_POST['user_id'] ?? '';
@@ -100,6 +161,7 @@ class AuthController extends BaseController {
         $defaultLevel = $config['join_level'] ?? 1;
 
         try {
+            $db->beginTransaction();
             $stmt = $db->prepare("INSERT INTO users (user_id, username, email, password, country, point, level) VALUES (:user_id, :username, :email, :password, :country, :point, :level)");
             $stmt->execute([
                 'user_id' => $userId,
@@ -122,8 +184,10 @@ class AuthController extends BaseController {
                 ]);
             }
 
+            $db->commit();
             $this->redirect('/register?success=1');
         } catch (\PDOException $e) {
+            if ($db->inTransaction()) $db->rollBack();
             $this->view('auth/register', ['error' => 'User ID or Email already exists']);
         }
     }
@@ -162,10 +226,74 @@ class AuthController extends BaseController {
         $stmt->execute(['user_id' => $userStrId]);
         $posts = $stmt->fetchAll();
 
+        // 2FA status
+        $twoFaEnabled = !empty($user['two_factor_secret']);
+        $twoFaSetup = null;
+        if (!empty($_SESSION['2fa_setup_secret']) && !$twoFaEnabled) {
+            $secret = $_SESSION['2fa_setup_secret'];
+            $twoFaSetup = [
+                'secret' => $secret,
+                'uri' => \App\Core\Totp::provisioningUri($secret, $user['user_id'])
+            ];
+        }
+
         $this->view('auth/mypage', [
             'user' => $user,
-            'posts' => $posts
+            'posts' => $posts,
+            'twoFaEnabled' => $twoFaEnabled,
+            'twoFaSetup' => $twoFaSetup
         ]);
+    }
+
+    public function enableTwoFactor() {
+        $user = \App\Services\AuthService::user();
+        if (!\App\Services\AuthService::isMember()) $this->redirect('/login');
+        if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->redirect('/mypage?error=csrf');
+        $_SESSION['2fa_setup_secret'] = \App\Core\Totp::generateSecret();
+        $this->redirect('/mypage?2fa=setup');
+    }
+
+    public function confirmTwoFactor() {
+        $user = \App\Services\AuthService::user();
+        if (!\App\Services\AuthService::isMember()) $this->redirect('/login');
+        if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->redirect('/mypage?error=csrf');
+        $secret = $_SESSION['2fa_setup_secret'] ?? '';
+        if (!$secret || !\App\Core\Totp::verify($secret, $_POST['otp'] ?? '')) {
+            $this->redirect('/mypage?2fa=invalid');
+            return;
+        }
+        $db = Database::getInstance();
+        // Ensure column exists (older installs)
+        try {
+            $stmt = $db->prepare("UPDATE users SET two_factor_secret = :s WHERE id = :id");
+            $stmt->execute(['s' => $secret, 'id' => $user['id']]);
+        } catch (\PDOException $e) {
+            $db->exec("ALTER TABLE users ADD COLUMN two_factor_secret VARCHAR(64) DEFAULT NULL");
+            $stmt = $db->prepare("UPDATE users SET two_factor_secret = :s WHERE id = :id");
+            $stmt->execute(['s' => $secret, 'id' => $user['id']]);
+        }
+        unset($_SESSION['2fa_setup_secret']);
+        $_SESSION['user']['two_factor_secret'] = $secret;
+        $this->redirect('/mypage?2fa=enabled');
+    }
+
+    public function disableTwoFactor() {
+        $user = \App\Services\AuthService::user();
+        if (!\App\Services\AuthService::isMember()) $this->redirect('/login');
+        if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->redirect('/mypage?error=csrf');
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$user['id']]);
+        $row = $stmt->fetch();
+        if (!$row || !password_verify($_POST['current_password'] ?? '', $row['password'])) {
+            $this->redirect('/mypage?error=password');
+            return;
+        }
+        $stmt = $db->prepare("UPDATE users SET two_factor_secret = NULL WHERE id = ?");
+        $stmt->execute([$user['id']]);
+        unset($_SESSION['2fa_setup_secret']);
+        $_SESSION['user']['two_factor_secret'] = null;
+        $this->redirect('/mypage?2fa=disabled');
     }
 
     public function updateProfile() {

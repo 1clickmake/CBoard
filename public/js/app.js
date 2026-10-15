@@ -26,6 +26,10 @@ async function submitContactForm(e) {
         } else {
             alert('Error: ' + (result.message || 'Something went wrong.'));
         }
+        if (result.captcha_q) {
+            const q = document.getElementById('captcha-q');
+            if (q) q.textContent = result.captcha_q;
+        }
     } catch (error) {
         console.error('Contact Form Error:', error);
         alert('Failed to send message. Please try again later.');

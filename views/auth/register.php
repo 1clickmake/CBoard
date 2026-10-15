@@ -36,6 +36,10 @@
                 <label>Confirm Password</label>
                 <input type="password" name="confirm_password" class="form-control" required>
             </div>
+            <div class="form-group">
+                <label><?= htmlspecialchars($captcha_q ?? 'CAPTCHA') ?></label>
+                <input type="text" name="captcha_answer" class="form-control" required inputmode="numeric" autocomplete="off">
+            </div>
             <button type="submit" class="btn btn-primary btn-auth-submit">Create Account</button>
         </form>
         
