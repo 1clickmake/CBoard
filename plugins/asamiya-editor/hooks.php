@@ -7,13 +7,19 @@
  *   do_action('board_editor_head')
  *   do_action('board_editor', $initialHtml)
  *   do_action('board_editor_scripts', $csrf_token, $boardSlug)
+ *
+ * Admin page form calls the same hooks with $options.
+ * Admin mail form calls head/editor/scripts with mail $options.
  */
+
+// Cache-buster for plugin assets (bump after asset changes)
+const ASAMIYA_EDITOR_ASSET_V = '1.0.1';
 
 // 1. Editor stylesheet in <head> area of the write form
 add_action('board_editor_head', function() {
 ?>
-<link href="/asamiya-editor/asset/css" rel="stylesheet">
-<link href="/asamiya-editor/asset/theme" rel="stylesheet">
+<link href="/asamiya-editor/asset/css?v=<?= ASAMIYA_EDITOR_ASSET_V ?>" rel="stylesheet">
+<link href="/asamiya-editor/asset/theme?v=<?= ASAMIYA_EDITOR_ASSET_V ?>" rel="stylesheet">
 <?php
 });
 
@@ -42,7 +48,7 @@ add_action('board_editor_scripts', function($csrf_token = '', $boardSlug = '', $
     $height = $options['height'] ?? '400px';
     $exposeAs = $options['exposeAs'] ?? null;
 ?>
-<script src="/asamiya-editor/asset/js"></script>
+<script src="/asamiya-editor/asset/js?v=<?= ASAMIYA_EDITOR_ASSET_V ?>"></script>
 <script>
 (function() {
     const ASAMIYA_CSRF = <?= json_encode((string)$csrf_token) ?>;

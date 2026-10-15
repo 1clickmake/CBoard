@@ -87,11 +87,8 @@
 
             <div class="form-group mb-4">
                 <label class="form-label">Content</label>
-                <!-- Quill Editor -->
-                <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-                <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-
-                <div id="editor-container" style="height: 400px; background: rgba(0,0,0,0.2); color: white;"></div>
+                <?php do_action('board_editor_head'); ?>
+                <?php do_action('board_editor', ''); ?>
                 <input type="hidden" name="content" id="content">
             </div>
 
@@ -113,6 +110,8 @@
         </div>
     </form>
 </div>
+
+    <?php do_action('board_editor_scripts', $csrf_token ?? '', '', ['formId' => 'mailForm', 'uploadUrl' => '/admin/pages/upload-image', 'height' => '400px']); ?>
 
 <script>
     $('#link-mail').addClass('active');
@@ -150,35 +149,21 @@
             $('#smtpModal').fadeIn();
         }
 
-        // Initialize Quill
-        var quill = new Quill('#editor-container', {
-            theme: 'snow',
-            placeholder: 'Write your email content here...',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'code-block'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'color': [] }, { 'background': [] }],
-                    ['link', 'clean']
-                ]
-            }
-        });
-
         $('#mailForm').on('submit', function() {
-            $('#content').val(quill.root.innerHTML);
-            
+            var html = window.asamiyaEditor ? window.asamiyaEditor.getHTML() : '';
+            $('#content').val(html);
+
             // Check if subject/content is empty
             if (!$('input[name="subject"]').val()) {
                 alert('Please enter a subject.');
                 return false;
             }
-            if (quill.getText().trim().length === 0 && !quill.root.innerHTML.includes('<img')) {
+            var text = html.replace(/<[^>]*>/g, '').trim();
+            if (text.length === 0 && html.indexOf('<img') === -1) {
                 alert('Please enter email content.');
                 return false;
             }
-            
+
             return confirm('Are you sure you want to send this email?');
         });
 

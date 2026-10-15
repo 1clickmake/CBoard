@@ -82,6 +82,8 @@ include CM_LAYOUT_PATH . '/admin_header.php';
 
 <?php do_action('admin_page_form_after_form'); ?>
 
+<?php do_action('board_editor_scripts', $csrf_token ?? '', '', ['formId' => 'pageForm', 'contentId' => 'content_input', 'htmlId' => 'html_content', 'uploadUrl' => '/admin/pages/upload-image', 'height' => '500px', 'exposeAs' => 'pageEditor']); ?>
+
 <script>
     $('#link-pages').addClass('active');
 
@@ -98,7 +100,6 @@ include CM_LAYOUT_PATH . '/admin_header.php';
         });
         <?php endif; ?>
 
-        <?php do_action('board_editor_scripts', $csrf_token ?? '', '', ['formId' => 'pageForm', 'contentId' => 'content_input', 'htmlId' => 'html_content', 'uploadUrl' => '/admin/pages/upload-image', 'height' => '500px', 'exposeAs' => 'pageEditor']); ?>
         // Let plugins add their own JS logic
         <?php do_action('admin_page_form_scripts'); ?>
     });
