@@ -1,71 +1,112 @@
 
 /*
  * Asamiya Editor Theme Override (CMAKE)
- * - Removes the wrapper shadow
- * - Raises toolbar/menu visibility for readability
+ * Light-background Erie: dark slate menus on a light toolbar.
  * Loaded AFTER assets/asamiya-editor.css. Do not edit the original file.
  */
 
 .asamiya-editor-wrapper {
     box-shadow: none;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
 }
 
-/* Toolbar: brighter backdrop + stronger separation */
+/* Toolbar: light backdrop + strong separation */
 .asamiya-toolbar {
-    background: rgba(255, 255, 255, 0.07);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    background: #eef1f6;
+    border-bottom: 1px solid #cbd5e1;
     gap: 6px;
 }
 
 .asamiya-toolbar-group {
-    border-right: 1px solid rgba(255, 255, 255, 0.22);
+    border-right: 1px solid #cbd5e1;
 }
 
-/* Buttons: brighter icons + visible button faces */
+/* Buttons: dark slate icons on visible light faces */
 .asamiya-btn {
-    color: #e6ebf5;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
 }
 
 .asamiya-btn:hover {
-    background: rgba(255, 255, 255, 0.16);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.32);
+    background: #e2e8f0;
+    color: #0f172a;
+    border: 1px solid #94a3b8;
 }
 
 .asamiya-btn.active {
-    background: rgba(79, 172, 254, 0.32);
+    background: #4facfe;
     color: #ffffff;
-    border: 1px solid rgba(79, 172, 254, 0.65);
+    border: 1px solid #4facfe;
 }
 
 /* Select box: match button visibility */
 .asamiya-select {
-    color: #e6ebf5;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
 }
 
 .asamiya-select:hover, .asamiya-select:focus {
-    background: rgba(255, 255, 255, 0.16);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.32);
+    background: #e2e8f0;
+    color: #0f172a;
+    border: 1px solid #94a3b8;
+}
+
+.asamiya-select option {
+    background: #ffffff;
+    color: #1e293b;
 }
 
 /* Color pickers: give them a visible face too */
 .asamiya-color-picker {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
 }
 
 .asamiya-color-picker:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background: #e2e8f0;
 }
 
-/* Content: brighter body text */
+/* Content: dark body text + visible placeholder */
 .asamiya-content {
-    color: #f2f5fa;
+    color: #1e293b;
+}
+
+.asamiya-content[data-placeholder]:empty:before {
+    color: #94a3b8;
+}
+
+/* Content inner elements: light-theme Erie */
+.asamiya-content a {
+    color: #2563eb;
+}
+
+.asamiya-content blockquote {
+    color: #475569;
+    background: #f1f5f9;
+}
+
+.asamiya-content hr {
+    background: #cbd5e1;
+}
+
+.asamiya-content table {
+    background: #ffffff;
+}
+
+.asamiya-content table, .asamiya-content th, .asamiya-content td {
+    border: 1px solid #cbd5e1;
+}
+
+.asamiya-content th {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.asamiya-html-area {
+    background: #0f172a;
+    color: #7dd3fc;
 }
