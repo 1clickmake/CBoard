@@ -1,43 +1,63 @@
-<?php $title = 'Home'; include_header($title, $siteConfig); ?>
+<?php
+$title = 'Home';
+include_header($title, $siteConfig);
+$siteName = $siteConfig['site_name'] ?? 'CMAKE';
+$boardCount = 0;
+foreach ($groups as $g) { $boardCount += count($g['boards'] ?? []); }
+$firstBoardSlug = ($groups[0]['boards'][0]['slug'] ?? null);
+?>
 
 <div class="container">
-    <div style="text-align: center; margin-bottom: 5rem; margin-top: 3rem;">
-        <h1 style="font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem;">PHP <span style="color: var(--primary);">Engine</span> x Neuron AI</h1>
-        
-        <div style="margin-bottom: 2rem;">
-            <span style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.5rem 1.2rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.2);">
-                Active Template: <?= ucfirst($siteConfig['template'] ?? 'Basic') ?>
-            </span>
-            <p style="margin-top: 1rem; color: var(--text-muted); font-style: italic;">
-                "Congratulations! Your new template has been successfully initialized and is ready for customization."
-            </p>
+    <!-- Hero -->
+    <section class="basic-hero">
+        <div class="basic-hero-inner">
+            <span class="basic-hero-badge">COMMUNITY</span>
+            <h1 class="basic-hero-title"><?= htmlspecialchars($siteName) ?></h1>
+            <p class="basic-hero-desc">이야기를 나누고, 사진을 공유하고, 소식을 전하는 <?= htmlspecialchars($siteName) ?> 커뮤니티입니다.</p>
+            <div class="basic-hero-actions">
+                <?php if ($firstBoardSlug): ?>
+                    <a href="/board/<?= htmlspecialchars($firstBoardSlug) ?>" class="btn basic-hero-btn-primary">
+                        <i class="fa-solid fa-pen-nib"></i> 글 쓰러 가기
+                    </a>
+                <?php endif; ?>
+                <a href="/faq" class="btn basic-hero-btn-ghost">
+                    <i class="fa-solid fa-circle-question"></i> 자주 묻는 질문
+                </a>
+            </div>
+            <div class="basic-hero-stats">
+                <div class="basic-hero-stat">
+                    <strong><?= number_format(count($groups)) ?></strong>
+                    <span>그룹</span>
+                </div>
+                <div class="basic-hero-stat">
+                    <strong><?= number_format($boardCount) ?></strong>
+                    <span>게시판</span>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
-            A lightweight, high-performance PHP 8.1+ framework integration demo. 
-            Powered by Neuron AI for intelligent agent orchestration and a glassmorphism admin dashboard.999
-        </p>
-
-        
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+    <!-- Boards -->
+    <section class="basic-board-grid">
         <?php foreach ($groups as $group): ?>
-            <div class="glass-card">
-                <h2 style="color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
-                    <?= htmlspecialchars($group['name']) ?>
-                </h2>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                    <?= htmlspecialchars($group['description']) ?>
-                </p>
-                
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <?php foreach ($group['boards'] as $board): ?>
-                            <a href="/board/<?= $board['slug'] ?>" class="board-item-link">
-                                <div><?= htmlspecialchars($board['title']) ?></div>
-                                <div><?= htmlspecialchars($board['description']) ?></div>
-                            </a>
-                        <?php endforeach; ?>
+            <div class="glass-card basic-board-card">
+                <h2 class="basic-board-group"><?= htmlspecialchars($group['name']) ?></h2>
+                <?php if (!empty($group['description'])): ?>
+                    <p class="basic-board-desc"><?= htmlspecialchars($group['description']) ?></p>
+                <?php endif; ?>
+
+                <div class="basic-board-links">
+                    <?php foreach ($group['boards'] as $board): ?>
+                        <a href="/board/<?= $board['slug'] ?>" class="board-item-link basic-board-link">
+                            <div>
+                                <div class="basic-board-title"><?= htmlspecialchars($board['title']) ?></div>
+                                <?php if (!empty($board['description'])): ?>
+                                    <div class="basic-board-sub"><?= htmlspecialchars($board['description']) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <i class="fa-solid fa-chevron-right basic-board-arrow"></i>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -47,17 +67,17 @@
                 <h3 style="color: var(--text-muted);">No categories available. Please log in as admin to create groups and boards.</h3>
             </div>
         <?php endif; ?>
-    </div>
+    </section>
 </div>
 
 <!-- 최신글 리스트 섹션 (공지사항 & 자유게시판) -->
 <div class="container" style="margin-top: 3rem; margin-bottom: 4rem;">
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem;">
         <div>
-            <?php 
-                $board_slug = 'free'; 
+            <?php
+                $board_slug = 'free';
                 $limit = 5;
-                include CM_VIEWS_PATH . '/partials/latest_posts.php'; 
+                include CM_VIEWS_PATH . '/partials/latest_posts.php';
             ?>
         </div>
     </div>
@@ -65,19 +85,19 @@
 
 <!-- 최신 갤러리 섹션 -->
 <div class="container" style="margin-bottom: 4rem;">
-    <?php 
-        $board_slug = 'gallery'; 
+    <?php
+        $board_slug = 'gallery';
         $limit = 4;
-        include CM_VIEWS_PATH . '/partials/latest_gallery.php'; 
+        include CM_VIEWS_PATH . '/partials/latest_gallery.php';
     ?>
 </div>
 
 <!-- 최신 블로그 섹션 -->
 <div class="container" style="margin-bottom: 5rem;">
-    <?php 
-        $board_slug = 'blog'; 
+    <?php
+        $board_slug = 'blog';
         $limit = 3;
-        include CM_VIEWS_PATH . '/partials/latest_blog.php'; 
+        include CM_VIEWS_PATH . '/partials/latest_blog.php';
     ?>
 </div>
 
