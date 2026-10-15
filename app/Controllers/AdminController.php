@@ -17,7 +17,17 @@ class AdminController extends BaseController {
     }
 
     public function index() {
-        $this->view('admin/dashboard');
+        $db = Database::getInstance();
+        $stats = ['users' => 0, 'posts' => 0, 'boards' => 0, 'today' => 0];
+        try {
+            $stats['users'] = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
+            $stats['posts'] = (int)$db->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+            $stats['boards'] = (int)$db->query("SELECT COUNT(*) FROM boards")->fetchColumn();
+            $stmt = $db->prepare("SELECT COUNT(*) FROM visitor_logs WHERE visit_date = ?");
+            $stmt->execute([date('Y-m-d')]);
+            $stats['today'] = (int)$stmt->fetchColumn();
+        } catch (\Throwable $e) {}
+        $this->view('admin/dashboard', ['stats' => $stats]);
     }
 
     public function config() {
