@@ -13,6 +13,7 @@
 add_action('board_editor_head', function() {
 ?>
 <link href="/asamiya-editor/asset/css" rel="stylesheet">
+<link href="/asamiya-editor/asset/theme" rel="stylesheet">
 <?php
 });
 

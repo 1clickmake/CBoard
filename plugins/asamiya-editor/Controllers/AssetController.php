@@ -11,6 +11,7 @@ class AssetController
     private static $map = [
         'js' => ['asamiya-editor.js', 'application/javascript'],
         'css' => ['asamiya-editor.css', 'text/css'],
+        'theme' => ['asamiya-editor-theme.css', 'text/css'],
     ];
 
     public function serve($vars)

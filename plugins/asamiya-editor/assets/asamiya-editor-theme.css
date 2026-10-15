@@ -1,0 +1,71 @@
+
+/*
+ * Asamiya Editor Theme Override (CMAKE)
+ * - Removes the wrapper shadow
+ * - Raises toolbar/menu visibility for readability
+ * Loaded AFTER assets/asamiya-editor.css. Do not edit the original file.
+ */
+
+.asamiya-editor-wrapper {
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* Toolbar: brighter backdrop + stronger separation */
+.asamiya-toolbar {
+    background: rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    gap: 6px;
+}
+
+.asamiya-toolbar-group {
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+/* Buttons: brighter icons + visible button faces */
+.asamiya-btn {
+    color: #e6ebf5;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.asamiya-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+.asamiya-btn.active {
+    background: rgba(79, 172, 254, 0.32);
+    color: #ffffff;
+    border: 1px solid rgba(79, 172, 254, 0.65);
+}
+
+/* Select box: match button visibility */
+.asamiya-select {
+    color: #e6ebf5;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.asamiya-select:hover, .asamiya-select:focus {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+/* Color pickers: give them a visible face too */
+.asamiya-color-picker {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.asamiya-color-picker:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* Content: brighter body text */
+.asamiya-content {
+    color: #f2f5fa;
+}
