@@ -1,123 +1,126 @@
 <?php
 include CM_LAYOUT_PATH . '/header.php';
+
+// Ensure $groups is available
+if (!isset($groups)) {
+    $db = \App\Core\Database::getInstance();
+    $groups = $db->query("SELECT * FROM board_groups ORDER BY id ASC")->fetchAll();
+    foreach ($groups as &$group) {
+        $stmt = $db->prepare("SELECT * FROM boards WHERE group_id = :id ORDER BY id ASC");
+        $stmt->execute(['id' => $group['id']]);
+        $group['boards'] = $stmt->fetchAll();
+    }
+}
+$allBoards = [];
+foreach ($groups as $gr) {
+    foreach (($gr['boards'] ?? []) as $b) { $allBoards[] = $b; }
+}
+$logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 ?>
-    <nav class="navbar">
-        <!-- Mobile Left: Login Icons -->
-        <div class="mobile-user-actions">
-            <?php if ($is_member): ?>
-                <a href="/mypage" title="My Page"><i class="fa-regular fa-user"></i></a>
-            <?php else: ?>
-                <a href="/login" title="Login"><i class="fa-regular fa-user"></i></a>
-            <?php endif; ?>
-        </div>
-
-        <!-- PC Left Dummy (Not needed in grid but helps spacing in PC if flex) -->
-        <!-- Center: Logo -->
-        <a href="/" class="navbar-brand">
-            <?php if (($siteConfig['logo_type'] ?? 'text') === 'image' && !empty($siteConfig['logo_image'])): ?>
-                <img src="<?= sanitize_url($siteConfig['logo_image']) ?>" alt="<?= htmlspecialchars($siteConfig['site_name']) ?>" style="max-height: 40px;">
-            <?php else: ?>
-                <?= htmlspecialchars(!empty($siteConfig['logo_text']) ? $siteConfig['logo_text'] : ($siteConfig['site_name'] ?? 'CMAKE')) ?>
-            <?php endif; ?>
-        </a>
-
-        <!-- PC & Mobile Right Actions -->
-        <div class="navbar-actions">
-            <!-- PC Nav Links -->
-            <div class="nav-links">
-                <a href="/faq">FAQ</a>
+<header id="simple-hd">
+    <!-- Utility topbar -->
+    <div class="simple-topbar">
+        <div class="simple-inner">
+            <span class="simple-welcome"><?= htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE') ?>에 오신 것을 환영합니다</span>
+            <ul class="simple-topbar-right">
+                <li><a href="/faq">FAQ</a></li>
                 <?php if ($is_member): ?>
-                    <?php if ($is_admin): ?>
-                        <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Admin Panel</a>
+                    <?php if ($is_admin): ?><li><a href="/admin" class="simple-admin">관리자</a></li><?php endif; ?>
+                    <li><a href="/mypage">정보수정</a></li>
+                    <li><a href="/logout">로그아웃</a></li>
+                <?php else: ?>
+                    <li><a href="/register">회원가입</a></li>
+                    <li><a href="/login" class="simple-login-link">로그인</a></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Logo bar -->
+    <div class="simple-header-main">
+        <div class="simple-inner">
+            <div id="simple-logo">
+                <a href="/" aria-label="<?= htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE') ?>">
+                    <?php if (($siteConfig['logo_type'] ?? 'text') === 'image' && !empty($siteConfig['logo_image'])): ?>
+                        <img src="<?= sanitize_url($siteConfig['logo_image']) ?>" alt="<?= htmlspecialchars($siteConfig['site_name'] ?? '') ?>" style="max-height: 40px;">
+                    <?php else: ?>
+                        <span class="simple-logo-mark"><?= htmlspecialchars($logoChar) ?></span>
+                        <span class="simple-logo-text"><?= htmlspecialchars(!empty($siteConfig['logo_text']) ? $siteConfig['logo_text'] : ($siteConfig['site_name'] ?? 'CMAKE')) ?></span>
                     <?php endif; ?>
-                    <a href="/mypage" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;" class="username-link">
+                </a>
+            </div>
+
+            <div class="simple-header-links">
+                <?php if ($is_member): ?>
+                    <a href="/mypage" class="simple-user-chip">
                         <i class="fa-solid fa-circle-user"></i> <?= htmlspecialchars($user['username']) ?>
                     </a>
-                    <a href="/logout" class="btn btn-secondary text-light">Logout</a>
                 <?php else: ?>
-                    <a href="/login">Login</a>
-                    <a href="/register">Sign Up</a>
+                    <a href="/login" class="simple-btn-login">로그인</a>
+                    <a href="/register" class="simple-btn-join">회원가입</a>
                 <?php endif; ?>
             </div>
 
-            <!-- Hamburger Toggle (Shown on Mobile) -->
-            <button class="sidebar-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
-                <i class="fa-solid fa-bars"></i>
+            <button class="simple-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="메뉴 열기">
+                <span></span><span></span><span></span>
             </button>
         </div>
-    </nav>
+    </div>
 
-    <!-- Offcanvas Mobile Menu -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel" style="z-index: 9999;">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="mobileMenuLabel">MENU</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="d-flex flex-column">
-                
-                <!-- User Profile / Auth Links -->
-                <?php if ($is_member): ?>
-                    <div style="background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 1rem;">
-                            <i class="fa-solid fa-circle-user" style="font-size: 2rem; color: var(--text-muted);"></i>
-                            <div style="text-align: left;">
-                                <div style="font-size: 1rem; font-weight: 600; color: white;">
-                                    <?= htmlspecialchars($user['username']) ?>
-                                </div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">
-                                    <?= $is_super ? 'Super Admin' : ($is_admin ? 'Administrator' : 'Member') ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <?php if ($is_admin): ?>
-                                <a href="/admin" class="btn btn-sm btn-primary w-100">Admin</a>
-                            <?php endif; ?>
-                            <a href="/mypage" class="btn btn-sm w-100" style="background: #a855f7; color: white; border: none;">My Page</a>
-                            <a href="/logout" class="btn btn-sm btn-danger w-100">Logout</a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div style="background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
-                        <h6 style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">Welcome to <?= htmlspecialchars($siteConfig['site_name']) ?></h6>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <a href="/login" class="btn btn-primary w-100" style="background: var(--primary); border: none;">Login</a>
-                            <a href="/register" class="btn w-100" style="background: #a855f7; color: white; border: none;">Sign Up</a>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <a href="/" class="mobile-nav-item">
-                    <i class="fa-solid fa-house"></i> Home 
-                </a>
-                <a href="/faq" class="mobile-nav-item">
-                    <i class="fa-solid fa-question-circle"></i> FAQ
-                </a>
-                
-                <?php
-                // Ensure $groups is available
-                if (!isset($groups)) {
-                    $db = \App\Core\Database::getInstance();
-                    $groups = $db->query("SELECT * FROM board_groups ORDER BY id ASC")->fetchAll();
-                    foreach ($groups as &$group) {
-                        $stmt = $db->prepare("SELECT * FROM boards WHERE group_id = :id ORDER BY id ASC");
-                        $stmt->execute(['id' => $group['id']]);
-                        $group['boards'] = $stmt->fetchAll();
-                    }
-                }
-                ?>
-                
-                <?php foreach ($groups as $group): ?>
-                    <div style="margin: 1rem 0 0.5rem; padding-left: 1rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">
-                        <?= htmlspecialchars($group['name']) ?>
-                    </div>
-                    <?php foreach ($group['boards'] as $board): ?>
-                        <a href="/board/<?= $board['slug'] ?>" class="mobile-nav-item">
-                            <i class="fa-solid fa-list-ul"></i> <?= htmlspecialchars($board['title']) ?>
-                        </a>
-                    <?php endforeach; ?>
+    <!-- GNB -->
+    <nav id="simple-gnb" aria-label="메인메뉴">
+        <div class="simple-inner">
+            <ul class="simple-gnb-list">
+                <li class="simple-gnb-home"><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
+                <?php foreach ($allBoards as $board): ?>
+                    <li class="simple-gnb-item">
+                        <a href="/board/<?= $board['slug'] ?>"><?= htmlspecialchars($board['title']) ?></a>
+                    </li>
                 <?php endforeach; ?>
-            </div>
+            </ul>
         </div>
-    </div> 
+    </nav>
+</header>
+
+<!-- Offcanvas Mobile Menu -->
+<div class="offcanvas offcanvas-end simple-offcanvas" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="mobileMenuLabel">MENU</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="d-flex flex-column">
+            <?php if ($is_member): ?>
+                <div class="simple-mobile-user">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <div>
+                        <div class="simple-mobile-name"><?= htmlspecialchars($user['username']) ?></div>
+                        <div class="simple-mobile-role"><?= $is_super ? 'Super Admin' : ($is_admin ? 'Administrator' : 'Member') ?></div>
+                    </div>
+                </div>
+                <div class="simple-mobile-auth">
+                    <?php if ($is_admin): ?><a href="/admin" class="btn btn-sm btn-primary w-100">Admin</a><?php endif; ?>
+                    <a href="/mypage" class="btn btn-sm btn-secondary w-100">My Page</a>
+                    <a href="/logout" class="btn btn-sm btn-danger w-100">Logout</a>
+                </div>
+            <?php else: ?>
+                <div class="simple-mobile-auth">
+                    <a href="/login" class="btn btn-primary w-100">Login</a>
+                    <a href="/register" class="btn btn-secondary w-100">Sign Up</a>
+                </div>
+            <?php endif; ?>
+
+            <a href="/" class="mobile-nav-item"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/faq" class="mobile-nav-item"><i class="fa-solid fa-question-circle"></i> FAQ</a>
+
+            <?php foreach ($groups as $group): ?>
+                <div class="simple-mobile-group"><?= htmlspecialchars($group['name']) ?></div>
+                <?php foreach ($group['boards'] as $board): ?>
+                    <a href="/board/<?= $board['slug'] ?>" class="mobile-nav-item">
+                        <i class="fa-solid fa-list-ul"></i> <?= htmlspecialchars($board['title']) ?>
+                    </a>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>

@@ -4,106 +4,113 @@ include_header($title, $siteConfig);
 $siteName = $siteConfig['site_name'] ?? 'CMAKE';
 $boardCount = 0;
 foreach ($groups as $g) { $boardCount += count($g['boards'] ?? []); }
-$firstBoardSlug = ($groups[0]['boards'][0]['slug'] ?? null);
+$freeSlug = null; $gallerySlug = null;
+foreach ($groups as $g) {
+    foreach (($g['boards'] ?? []) as $b) {
+        if ($freeSlug === null) $freeSlug = $b['slug'];
+        if (($b['slug'] ?? '') === 'gallery') $gallerySlug = 'gallery';
+    }
+}
 ?>
 
-<div class="container">
-    <!-- Hero -->
-    <section class="basic-hero">
-        <div class="basic-hero-inner">
-            <span class="basic-hero-badge">COMMUNITY</span>
-            <h1 class="basic-hero-title"><?= htmlspecialchars($siteName) ?></h1>
-            <p class="basic-hero-desc">이야기를 나누고, 사진을 공유하고, 소식을 전하는 <?= htmlspecialchars($siteName) ?> 커뮤니티입니다.</p>
-            <div class="basic-hero-actions">
-                <?php if ($firstBoardSlug): ?>
-                    <a href="/board/<?= htmlspecialchars($firstBoardSlug) ?>" class="btn basic-hero-btn-primary">
-                        <i class="fa-solid fa-pen-nib"></i> 글 쓰러 가기
-                    </a>
+<div class="simple-inner">
+    <!-- 히어로 -->
+    <section class="simple-hero">
+        <div class="simple-hero-text">
+            <span class="simple-hero-badge">가벼운 미니멀 커뮤니티</span>
+            <h2>심플하게,<br>깔끔하게 소통하세요.</h2>
+            <p><?= htmlspecialchars($siteName) ?> — 불필요한 장식을 덜어내고 글과 사람에 집중한 공간입니다.</p>
+            <div class="simple-hero-btns">
+                <?php if ($freeSlug): ?>
+                    <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary">글 쓰러 가기</a>
                 <?php endif; ?>
-                <a href="/faq" class="btn basic-hero-btn-ghost">
-                    <i class="fa-solid fa-circle-question"></i> 자주 묻는 질문
-                </a>
+                <a href="<?= $gallerySlug ? '/board/gallery' : '/faq' ?>" class="simple-btn-ghost"><?= $gallerySlug ? '갤러리 보기' : '자주 묻는 질문' ?></a>
             </div>
-            <div class="basic-hero-stats">
-                <div class="basic-hero-stat">
-                    <strong><?= number_format(count($groups)) ?></strong>
-                    <span>그룹</span>
-                </div>
-                <div class="basic-hero-stat">
-                    <strong><?= number_format($boardCount) ?></strong>
-                    <span>게시판</span>
-                </div>
+            <div class="simple-hero-tags">
+                <span>그룹 <?= number_format(count($groups)) ?></span>
+                <span>게시판 <?= number_format($boardCount) ?></span>
             </div>
         </div>
     </section>
 
-    <!-- Boards -->
-    <section class="basic-board-grid">
-        <?php foreach ($groups as $group): ?>
-            <div class="glass-card basic-board-card">
-                <h2 class="basic-board-group"><?= htmlspecialchars($group['name']) ?></h2>
-                <?php if (!empty($group['description'])): ?>
-                    <p class="basic-board-desc"><?= htmlspecialchars($group['description']) ?></p>
-                <?php endif; ?>
-
-                <div class="basic-board-links">
-                    <?php foreach ($group['boards'] as $board): ?>
-                        <a href="/board/<?= $board['slug'] ?>" class="board-item-link basic-board-link">
-                            <div>
-                                <div class="basic-board-title"><?= htmlspecialchars($board['title']) ?></div>
-                                <?php if (!empty($board['description'])): ?>
-                                    <div class="basic-board-sub"><?= htmlspecialchars($board['description']) ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <i class="fa-solid fa-chevron-right basic-board-arrow"></i>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-
-        <?php if (empty($groups)): ?>
-            <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
-                <h3 style="color: var(--text-muted);">No categories available. Please log in as admin to create groups and boards.</h3>
-            </div>
-        <?php endif; ?>
-    </section>
-</div>
-
-<!-- 최신글 리스트 섹션 (공지사항 & 자유게시판) -->
-<div class="container" style="margin-top: 3rem; margin-bottom: 4rem;">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem;">
-        <div>
-            <?php
-                $board_slug = 'free';
-                $limit = 5;
-                include CM_VIEWS_PATH . '/partials/latest_posts.php';
-            ?>
+    <!-- 게시판 카드 -->
+    <section class="simple-section">
+        <div class="simple-section-head">
+            <h3>게시판</h3>
         </div>
-    </div>
-</div>
+        <div class="simple-card-grid">
+            <?php foreach ($groups as $group): ?>
+                <div class="simple-card">
+                    <h4 class="simple-card-title"><?= htmlspecialchars($group['name']) ?></h4>
+                    <?php if (!empty($group['description'])): ?>
+                        <p class="simple-card-desc"><?= htmlspecialchars($group['description']) ?></p>
+                    <?php endif; ?>
+                    <ul class="simple-card-links">
+                        <?php foreach ($group['boards'] as $board): ?>
+                            <li>
+                                <a href="/board/<?= $board['slug'] ?>">
+                                    <?= htmlspecialchars($board['title']) ?>
+                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endforeach; ?>
 
-<!-- 최신 갤러리 섹션 -->
-<div class="container" style="margin-bottom: 4rem;">
-    <?php
-        $board_slug = 'gallery';
-        $limit = 4;
-        include CM_VIEWS_PATH . '/partials/latest_gallery.php';
-    ?>
-</div>
+            <?php if (empty($groups)): ?>
+                <div class="simple-card" style="grid-column: 1 / -1; text-align: center;">
+                    관리자로 로그인해 그룹과 게시판을 만들어 주세요.
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
 
-<!-- 최신 블로그 섹션 -->
-<div class="container" style="margin-bottom: 5rem;">
-    <?php
-        $board_slug = 'blog';
-        $limit = 3;
-        include CM_VIEWS_PATH . '/partials/latest_blog.php';
-    ?>
-</div>
+    <!-- 최신글 -->
+    <section class="simple-section">
+        <div class="simple-section-head">
+            <h3>최신 글</h3>
+        </div>
+        <?php
+            $board_slug = 'free';
+            $limit = 5;
+            include CM_VIEWS_PATH . '/partials/latest_posts.php';
+        ?>
+    </section>
 
-<!-- 폼메일 섹션 -->
-<div class="container">
-    <?php include CM_VIEWS_PATH . '/partials/formmail.php'; ?>
+    <!-- 갤러리 -->
+    <section class="simple-section">
+        <div class="simple-section-head">
+            <h3>갤러리</h3>
+            <a href="/board/gallery" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </div>
+        <?php
+            $board_slug = 'gallery';
+            $limit = 4;
+            include CM_VIEWS_PATH . '/partials/latest_gallery.php';
+        ?>
+    </section>
+
+    <!-- 블로그 -->
+    <section class="simple-section">
+        <div class="simple-section-head">
+            <h3>블로그</h3>
+            <a href="/board/blog" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </div>
+        <?php
+            $board_slug = 'blog';
+            $limit = 3;
+            include CM_VIEWS_PATH . '/partials/latest_blog.php';
+        ?>
+    </section>
+
+    <!-- 문의 -->
+    <section class="simple-section">
+        <div class="simple-section-head">
+            <h3>문의하기</h3>
+        </div>
+        <?php include CM_VIEWS_PATH . '/partials/formmail.php'; ?>
+    </section>
 </div>
 
 <?php include_footer($siteConfig); ?>
