@@ -1,0 +1,18 @@
+PROPRIETARY PLUGIN LICENSE
+
+Copyright (c) 2026 1clickmake. All rights reserved.
+
+This plugin (including all files in this directory) is bundled with the
+CMAKE core system and may be used together with it.
+
+RESTRICTIONS:
+- Standalone redistribution, resale, re-upload, or separate distribution
+  of this plugin (in whole or in part) is prohibited.
+- Modification for use within your own installation is permitted.
+- Removal of copyright notices is prohibited.
+
+NOTE: The editor core (assets/asamiya-editor.js, assets/asamiya-editor.css)
+is the work of its original author (Asamiya) and is bundled under that
+project's own terms. See the source repository for details.
+
+For licensing inquiries, contact 1clickmake.

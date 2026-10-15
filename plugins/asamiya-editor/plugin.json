@@ -1,0 +1,6 @@
+{
+    "name": "Asamiya Editor",
+    "description": "Vanilla JS zero-dependency rich text editor for board write forms.",
+    "version": "1.0.0",
+    "author": "Asamiya (bundled by 1clickmake)"
+}

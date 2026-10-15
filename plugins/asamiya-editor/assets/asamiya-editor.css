@@ -1,0 +1,213 @@
+/* 
+ * Asamiya Editor CSS
+ * Glassmorphism-based dark theme design / 글래스모피즘 기반 다크 테마 디자인 
+ */
+
+ .asamiya-editor-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03); /* Translucent background / 반투명 배경 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: hidden;
+    font-family: inherit;
+    color: #e0e0e0;
+}
+
+/* Toolbar Area / 툴바 영역 */
+.asamiya-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.asamiya-toolbar-group {
+    display: flex;
+    gap: 2px;
+    padding-right: 10px;
+    margin-right: 5px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.asamiya-toolbar-group:last-child {
+    border-right: none;
+}
+
+.asamiya-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #a0aabf;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.asamiya-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.asamiya-btn.active {
+    background: rgba(79, 172, 254, 0.2);
+    color: #4facfe;
+    border: 1px solid rgba(79, 172, 254, 0.4);
+}
+
+/* Select Box (Font size, etc.) / 셀렉트 박스 (폰트 사이즈 등) */
+.asamiya-select {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #a0aabf;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 5px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.asamiya-select:hover, .asamiya-select:focus {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.asamiya-select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+
+/* Color Picker / 컬러 피커 */
+.asamiya-color-picker {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    padding: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.asamiya-color-picker:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Content Editable Area / 본문 편집 영역 */
+.asamiya-content {
+    padding: 20px;
+    min-height: 200px;
+    outline: none; /* Remove focus outline / 포커스 아웃라인 제거 */
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-y: auto;
+}
+
+.asamiya-content[data-placeholder]:empty:before {
+    content: attr(data-placeholder);
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    display: block;
+}
+
+/* Internal Element Styles / 본문 내부 요소 스타일 */
+.asamiya-content p {
+    margin: 0 0 1em 0;
+}
+
+.asamiya-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.asamiya-content iframe {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 10px 0;
+    background: #000;
+}
+
+/* HTML Editing Area (Textarea) / HTML 편집 영역 (Textarea) */
+.asamiya-html-area {
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    background: #111520;
+    color: #4facfe;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+}
+
+.asamiya-content a {
+    color: #4facfe;
+    text-decoration: none;
+}
+
+.asamiya-content a:hover {
+    text-decoration: underline;
+}
+
+.asamiya-content blockquote {
+    border-left: 4px solid #4facfe;
+    padding-left: 15px;
+    margin-left: 0;
+    color: #a0aabf;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.02);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 0 8px 8px 0;
+}
+
+.asamiya-content hr {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 20px 0;
+}
+
+.asamiya-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.asamiya-content table, .asamiya-content th, .asamiya-content td {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.asamiya-content th, .asamiya-content td {
+    padding: 10px;
+    text-align: left;
+}
+
+.asamiya-content th {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: bold;
+    color: #4facfe;
+}

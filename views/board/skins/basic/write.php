@@ -4,9 +4,7 @@ include_header($title, $siteConfig);
 ?>
 <style><?php include CM_BOARD_SKINS_PATH . '/basic/style.css'; ?></style>
 
-<!-- Quill.js Dependencies (No jQuery dependency, compatible with JQ4) -->
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<?php do_action('board_editor_head'); ?>
 
 <div class="container basic-container">
     <div class="glass-card">
@@ -34,9 +32,9 @@ include_header($title, $siteConfig);
                     </div>
                 </div>
 
-                <!-- Quill Editor Container -->
+                <!-- Rich Editor Container (provided by editor plugin) -->
                 <div id="visual-editor-wrapper" style="<?= ($post['editor_mode'] ?? 'visual') === 'visual' ? '' : 'display: none;' ?>">
-                    <div id="editor-container" class="editor-container-style"></div>
+                    <?php do_action('board_editor', isset($post) ? $_raw['post']['content'] : ''); ?>
                 </div>
 
                 <!-- Raw HTML Textarea -->
@@ -83,106 +81,22 @@ include_header($title, $siteConfig);
     </div>
 </div>
 
+<?php $currentSlug = isset($board) ? $board['slug'] : (isset($post['board_slug']) ? $post['board_slug'] : ''); ?>
+<?php do_action('board_editor_scripts', $csrf_token, $currentSlug); ?>
 <script>
 $(document).ready(function() {
-    // Initialize Quill
-    var quill = new Quill('#editor-container', {
-        modules: {
-            toolbar: {
-                container: [
-                    [{ header: [1, 2, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link', 'image', 'code-block'],
-                    ['clean']
-                ],
-                handlers: {
-                    image: imageHandler
-                }
-            }
-        },
-        placeholder: 'Write your content here...',
-        theme: 'snow'
-    });
-
-    // Set initial content
-    const initialContent = $('#html_content').val();
-    if (initialContent) {
-        quill.clipboard.dangerouslyPasteHTML(initialContent);
-    }
-
-    let isDirty = false;
-    quill.on('text-change', function(delta, oldDelta, source) {
-        if (source === 'user') {
-            isDirty = true;
-        }
-    });
-
-    function imageHandler() {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
-
-        input.onchange = () => {
-            const file = input.files[0];
-            const formData = new FormData();
-            formData.append('image', file);
-
-            <?php $currentSlug = isset($board) ? $board['slug'] : (isset($post['board_slug']) ? $post['board_slug'] : ''); ?>
-            fetch('/board/upload-image/<?= $currentSlug ?>', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(result => {
-                const range = quill.getSelection(true);
-                quill.insertEmbed(range.index, 'image', result.url);
-                quill.setSelection(range.index + 1);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Image upload failed');
-            });
-        };
-    }
-
-    // Mode Switching Logic
-    $('input[name="editor_mode"]').change(function() {
-        if (this.value === 'html') {
-            if (isDirty) {
-                $('#html_content').val(quill.root.innerHTML);
-            }
-            $('#visual-editor-wrapper').hide();
-            $('#html-editor-wrapper').show();
-        } else {
-            quill.clipboard.dangerouslyPasteHTML($('#html_content').val());
-            isDirty = false;
-            $('#html-editor-wrapper').hide();
-            $('#visual-editor-wrapper').show();
-        }
-    });
-
-    // Initialize Visibility (in case JS loads after partial render or for state management)
-    const initialMode = $('input[name="editor_mode"]:checked').val();
-    if (initialMode === 'html') {
+    // Fallback when the editor plugin is absent: fall back to raw HTML mode
+    if (!window.asamiyaEditor) {
+        $('input[name="editor_mode"][value="html"]').prop('checked', true);
         $('#visual-editor-wrapper').hide();
         $('#html-editor-wrapper').show();
-    } else {
-        $('#html-editor-wrapper').hide();
-        $('#visual-editor-wrapper').show();
     }
 
-    // Handle form submission
     $('#writeForm').on('submit', function() {
-        var mode = $('input[name="editor_mode"]:checked').val();
-        if (mode === 'html') {
+        if (!window.asamiyaEditor) {
             $('#content').val($('#html_content').val());
-        } else {
-            $('#content').val(quill.root.innerHTML);
         }
     });
-
 
     // Dynamic File Inputs
     $(document).on('click', '.btn-add-file', function() {
