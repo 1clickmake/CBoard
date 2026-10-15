@@ -31,6 +31,41 @@ foreach ($groups as $g) {
                 <span>게시판 <?= number_format($boardCount) ?></span>
             </div>
         </div>
+        <div class="simple-hero-side">
+            <?php if ($is_member): ?>
+                <div class="simple-welcome-box">
+                    <div class="simple-welcome-user">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <div>
+                            <strong><?= htmlspecialchars($user['username']) ?></strong>
+                            <span><?= $is_super ? 'Super Admin' : ($is_admin ? 'Administrator' : 'Member') ?></span>
+                        </div>
+                    </div>
+                    <div class="simple-welcome-links">
+                        <?php if ($freeSlug): ?>
+                            <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary simple-btn-sm">글쓰기</a>
+                        <?php endif; ?>
+                        <a href="/mypage" class="simple-btn-ghost simple-btn-sm">마이페이지</a>
+                        <?php if ($is_admin): ?>
+                            <a href="/admin" class="simple-btn-ghost simple-btn-sm">관리자</a>
+                        <?php endif; ?>
+                    </div>
+                    <a href="/logout" class="simple-logout-link">로그아웃</a>
+                </div>
+            <?php else: ?>
+                <form class="simple-login-box" action="/login" method="POST">
+                    <h4>로그인</h4>
+                    <p>간편하게 로그인하고 소통해 보세요.</p>
+                    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                    <label class="sound-only" for="hero_user_id" style="display:none;">아이디</label>
+                    <input type="text" id="hero_user_id" name="user_id" placeholder="아이디" required autocomplete="username">
+                    <label class="sound-only" for="hero_pw" style="display:none;">비밀번호</label>
+                    <input type="password" id="hero_pw" name="password" placeholder="비밀번호" required autocomplete="current-password">
+                    <button type="submit">로그인</button>
+                    <a href="/register" class="simple-join-link">아직 회원이 아니세요? 회원가입</a>
+                </form>
+            <?php endif; ?>
+        </div>
     </section>
 
     <!-- 게시판 카드 -->

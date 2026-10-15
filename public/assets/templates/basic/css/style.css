@@ -2366,6 +2366,10 @@ p {
     position: relative;
     overflow: hidden;
     margin: 26px 0;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 22px;
+    align-items: center;
 }
 
 .simple-hero-text h2 {
@@ -2439,6 +2443,131 @@ p {
     border-radius: 999px;
     padding: 4px 12px;
     font-size: 0.8rem;
+}
+
+/* Hero side panel (login / welcome) */
+.simple-hero-side {
+    min-width: 0;
+}
+
+.simple-login-box,
+.simple-welcome-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 26px 24px;
+    color: #111827;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+}
+
+.simple-login-box h4 {
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.simple-login-box p {
+    margin: 0 0 14px;
+    font-size: 0.83rem;
+    color: #6b7280;
+}
+
+.simple-login-box input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    outline: none;
+}
+
+.simple-login-box input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.simple-login-box button {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: #4f46e5;
+    color: #fff;
+    font-weight: 800;
+    padding: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.simple-login-box button:hover {
+    background: #4338ca;
+}
+
+.simple-join-link {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.83rem;
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.simple-join-link:hover {
+    color: #4f46e5;
+}
+
+.simple-welcome-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.simple-welcome-user > i {
+    font-size: 2.4rem;
+    color: #a5b4fc;
+}
+
+.simple-welcome-user strong {
+    display: block;
+    font-size: 1.05rem;
+}
+
+.simple-welcome-user span {
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.simple-welcome-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.simple-btn-sm {
+    padding: 9px 16px;
+    font-size: 0.85rem;
+}
+
+.simple-welcome-box .simple-btn-ghost {
+    border-color: #c7d2fe;
+    color: #4f46e5;
+}
+
+.simple-welcome-box .simple-btn-ghost:hover {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+.simple-logout-link {
+    font-size: 0.82rem;
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+.simple-logout-link:hover {
+    color: #4f46e5;
 }
 
 /* Sections + cards */
@@ -2607,6 +2736,10 @@ p {
 
 @media (max-width: 860px) {
     .simple-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .simple-hero {
         grid-template-columns: 1fr;
     }
 
