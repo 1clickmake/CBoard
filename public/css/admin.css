@@ -1205,6 +1205,57 @@ option {
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
 }
 
+/* Teal gradient list tables */
+.tn-list {
+    --bs-table-bg: transparent;
+    background: #fff;
+    color: #334155;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.tn-list thead th {
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    padding: 13px 10px;
+    white-space: nowrap;
+}
+
+.tn-list tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: #334155;
+}
+
+.tn-list tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.tn-list tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tn-list.table-hover tbody tr:hover {
+    background-color: #f0fdfa;
+}
+
+.tn-list a {
+    color: #0f766e;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.tn-list a:hover {
+    color: #0d9488;
+}
+
 pre, code {
     color: #0f766e;
 }

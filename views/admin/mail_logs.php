@@ -45,7 +45,7 @@
                 color: #818cf8;
             }
         </style>
-        <table class="table table-dark table-hover table-striped text-center">
+        <table class="table tn-list table-hover text-center">
             <thead>
                 <tr>
                     <th style="width: 40px;">

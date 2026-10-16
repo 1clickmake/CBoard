@@ -42,7 +42,7 @@
 
     <!-- 로그 테이블 -->
     <div class="table-responsive">
-        <table class="table table-dark table-hover table-striped text-center admin-table">
+        <table class="table tn-list table-hover text-center admin-table">
             <thead>
                 <tr>
                     <th style="width: 150px;">일시</th>
