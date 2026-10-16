@@ -23,6 +23,9 @@ class AdminAiController
             if (!$prompt) {
                 throw new \Exception("질문을 입력해주세요.");
             }
+            if (!AiService::isAvailable()) {
+                throw new \Exception("AI engine is not installed. Run: composer require neuron-core/neuron-ai");
+            }
 
             $db = Database::getInstance();
             $aiService = new AiService();

@@ -25,6 +25,10 @@ class ChatbotController
                 throw new \Exception("Message is required.");
             }
 
+            if (!AiService::isAvailable()) {
+                throw new \Exception("AI engine is not installed. Run: composer require neuron-core/neuron-ai");
+            }
+
             $db = Database::getInstance();
             $ai_config = $db->query("SELECT chatbot_limit_guest, chatbot_limit_member FROM `ai_config` WHERE `id` = 1")->fetch();
             $limit_guest = intval($ai_config['chatbot_limit_guest'] ?? 5);

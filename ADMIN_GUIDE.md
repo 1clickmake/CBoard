@@ -106,7 +106,7 @@
 ## 📜 라이선스 및 이용 안내
 
 - **Core System**: MIT License (누구나 자유롭게 수정 및 사용 가능)
-- **Plugins**: 본 프로젝트에 포함된 기본 플러그인(plugins/ 디렉토리)은 별도로 배포, 전재 또는 유료 판매가 금지되어 있습니다. 
+- **Plugins**: `plugins/` 디렉토리 내 각 플러그인은 자체 `LICENSE` 파일의 조건을 따릅니다 (proprietary — 단독 재배포·전재·유료 판매 금지, 설치본 내 사용·수정은 허용). 상세: 루트 `LICENSE` 및 `plugins/*/LICENSE` 참조. 
 
 ---
 

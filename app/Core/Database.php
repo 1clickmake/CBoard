@@ -27,7 +27,9 @@ class Database {
             error_log('DB connection failed: ' . $e->getMessage());
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             if (strpos($uri, '/install') === false) {
-                die("Database connection failed. Please try again later.");
+                http_response_code(500);
+                View::render('500', ['message' => 'Database connection failed. Please try again later.']);
+                exit;
             }
             throw $e;
         }

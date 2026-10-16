@@ -83,7 +83,7 @@ class AdminController extends BaseController {
     }
 
     public function updateConfig() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $db = Database::getInstance();
         
@@ -97,9 +97,9 @@ class AdminController extends BaseController {
             $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
             $orig = basename($_FILES['logo_image']['name']);
             $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
-            if (!in_array($ext, $allowed, true)) die("Invalid logo file type");
-            if ($_FILES['logo_image']['size'] > 5242880) die("Logo file too large");
-            if ($ext !== 'svg' && !@getimagesize($_FILES['logo_image']['tmp_name'])) die("Invalid logo image");
+            if (!in_array($ext, $allowed, true)) $this->deny('Invalid logo file type.');
+            if ($_FILES['logo_image']['size'] > 5242880) $this->deny('Logo file is too large.');
+            if ($ext !== 'svg' && !@getimagesize($_FILES['logo_image']['tmp_name'])) $this->deny('Invalid logo image.');
             $uploadDir = '/data/logo/';
             $fullPath = CM_PUBLIC_PATH . $uploadDir;
             if (!is_dir($fullPath)) {
@@ -181,7 +181,7 @@ class AdminController extends BaseController {
     }
 
     public function createUser() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $userid = $_POST['user_id'] ?? '';
         $username = $_POST['username'] ?? '';
@@ -240,7 +240,7 @@ class AdminController extends BaseController {
         // Table check
         $check = $db->query("SHOW TABLES LIKE 'point_log'");
         if ($check->rowCount() == 0) {
-            die("The 'point_log' table does not exist. Please run setup.sql or create the table manually.");
+            $this->fail('Required table is missing. Please run setup.sql.');
         }
 
         $search = $_GET['search'] ?? '';
@@ -280,7 +280,7 @@ class AdminController extends BaseController {
     }
 
     public function updatePoint() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $userid = $_POST['user_id'] ?? '';
         $point = $_POST['point'] ?? 0;
@@ -294,7 +294,7 @@ class AdminController extends BaseController {
     }
 
     public function bulkDeletePoints() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $ids = $_POST['ids'] ?? [];
         if (!empty($ids)) {
@@ -309,7 +309,7 @@ class AdminController extends BaseController {
     }
 
     public function deleteUser() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $id = $_POST['id'] ?? null;
         if ($id) {
@@ -321,7 +321,7 @@ class AdminController extends BaseController {
     }
 
     public function updateUser() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $id = $_POST['id'] ?? null;
         $userid = $_POST['user_id'] ?? '';
@@ -369,7 +369,7 @@ class AdminController extends BaseController {
     }
 
     public function createGroup() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $name = $_POST['name'] ?? '';
         $slug = $_POST['slug'] ?: strtolower(str_replace(' ', '-', $name));
         $desc = $_POST['description'] ?? '';
@@ -382,7 +382,7 @@ class AdminController extends BaseController {
     }
 
     public function updateGroup() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $id = $_POST['id'] ?? null;
         $name = $_POST['name'] ?? '';
         $slug = $_POST['slug'] ?? '';
@@ -397,7 +397,7 @@ class AdminController extends BaseController {
     }
 
     public function deleteGroup() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $id = $_POST['id'] ?? null;
         if ($id) {
             $db = Database::getInstance();
@@ -456,7 +456,7 @@ class AdminController extends BaseController {
     }
 
     public function createBoard() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $groupId = $_POST['group_id'] ?? null;
         $title = $_POST['title'] ?? '';
         $slug = $_POST['slug'] ?: strtolower(str_replace(' ', '-', $title));
@@ -493,7 +493,7 @@ class AdminController extends BaseController {
     }
 
     public function updateBoard() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $id = $_POST['id'] ?? null;
         $groupId = $_POST['group_id'] ?? null;
         $title = $_POST['title'] ?? '';
@@ -530,7 +530,7 @@ class AdminController extends BaseController {
     }
 
     public function deleteBoard() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $id = $_POST['id'] ?? null;
         if ($id) {
             $db = Database::getInstance();
@@ -602,7 +602,7 @@ class AdminController extends BaseController {
     }
 
     public function cleanupVisitors() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $period = intval($_POST['period'] ?? 0);
         
@@ -616,7 +616,7 @@ class AdminController extends BaseController {
     }
 
     public function saveVisitorIps() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $db = Database::getInstance();
         $stmt = $db->prepare("UPDATE config SET allowed_ips = :allowed, blocked_ips = :blocked WHERE id = 1");
@@ -638,7 +638,7 @@ class AdminController extends BaseController {
 
     public function createPage() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+            if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
             $db = Database::getInstance();
             $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $slug = $_POST['slug'] ?: strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $title));
@@ -667,7 +667,7 @@ class AdminController extends BaseController {
         $id = $vars['id'];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+            if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
             $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $slug = $_POST['slug'] ?? '';
             $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
@@ -693,7 +693,7 @@ class AdminController extends BaseController {
     }
 
     public function deletePage() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $id = $_POST['id'] ?? null;
         if ($id) {
             $db = Database::getInstance();
@@ -750,7 +750,7 @@ class AdminController extends BaseController {
     }
 
     public function saveMailConfig() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $host = $_POST['smtp_host'] ?? 'smtp.gmail.com';
         $port = $_POST['smtp_port'] ?? '465';
@@ -790,7 +790,7 @@ class AdminController extends BaseController {
     }
 
     public function sendMail() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $targetType = $_POST['target_type'] ?? 'all';
         $targetLevel = $_POST['target_level'] ?? 1;
@@ -800,7 +800,7 @@ class AdminController extends BaseController {
         $content = $_POST['content'] ?? '';
 
         if (!$subject || !$content) {
-            die("Subject and Content are required.");
+            $this->deny('Subject and content are required.');
         }
 
         // Handle Attachments
@@ -996,7 +996,7 @@ class AdminController extends BaseController {
 
 
     public function bulkDeleteMailLogs() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $ids = $_POST['ids'] ?? [];
         $filter = $_POST['filter'] ?? '';
@@ -1078,7 +1078,7 @@ class AdminController extends BaseController {
     }
 
     public function updateFaqConfig() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $categories = $_POST['faq_category'] ?? '';
         
@@ -1090,7 +1090,7 @@ class AdminController extends BaseController {
     }
 
     public function createFaq() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $category = trim($_POST['category'] ?? '');
         $question = trim($_POST['question'] ?? '');
@@ -1117,7 +1117,7 @@ class AdminController extends BaseController {
     }
 
     public function updateFaq() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $id = $_POST['id'] ?? null;
         $category = trim($_POST['category'] ?? '');
@@ -1141,7 +1141,7 @@ class AdminController extends BaseController {
     }
 
     public function deleteFaq() {
-        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $id = $_POST['id'] ?? null;
 

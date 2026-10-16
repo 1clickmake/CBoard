@@ -69,4 +69,22 @@ class BaseController {
             $this->redirect('/login');
         }
     }
+
+    protected function notFound($message = null) {
+        http_response_code(404);
+        $this->view('404', $message !== null ? ['message' => $message] : []);
+        exit;
+    }
+
+    protected function deny($message = null) {
+        http_response_code(403);
+        $this->view('403', $message !== null ? ['message' => $message] : []);
+        exit;
+    }
+
+    protected function fail($message = null) {
+        http_response_code(500);
+        $this->view('500', $message !== null ? ['message' => $message] : []);
+        exit;
+    }
 }

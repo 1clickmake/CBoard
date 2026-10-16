@@ -141,12 +141,12 @@ $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::NOT_FOUND:
         http_response_code(404);
-        echo "404 Not Found";
+        App\Core\View::render('404', []);
         break;
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
         $allowedMethods = $routeInfo[1];
         http_response_code(405);
-        echo "405 Method Not Allowed";
+        App\Core\View::render('403', ['message' => 'Method Not Allowed.']);
         break;
     case FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];

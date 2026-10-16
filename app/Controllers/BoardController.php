@@ -19,7 +19,7 @@ class BoardController extends BaseController {
         $board = $stmt->fetch();
         
         if (!$board) {
-            die("Board not found");
+            $this->notFound('Board not found');
         }
 
         // Permission Check: List
@@ -98,7 +98,7 @@ class BoardController extends BaseController {
         $post = $stmt->fetch();
         
         if (!$post) {
-            die("Post not found");
+            $this->notFound('Post not found');
         }
 
         // Permission Check: View
@@ -207,7 +207,7 @@ class BoardController extends BaseController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+            if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
             $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
@@ -271,11 +271,11 @@ class BoardController extends BaseController {
         $post = $stmt->fetch();
 
         if (!$post || (!isset($_SESSION['user']) || ($_SESSION['user']['user_id'] != $post['user_id'] && $_SESSION['user']['role'] != 'admin'))) {
-            die("Unauthorized");
+            $this->deny();
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+            if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
             $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
@@ -378,7 +378,7 @@ class BoardController extends BaseController {
 
     public function delete($vars) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Csrf::verify($_POST['csrf_token'] ?? '')) {
-             die("CSRF validation failed");
+             $this->deny('Invalid security token. Please try again.');
         }
         $id = $vars['id'];
         $db = Database::getInstance();
@@ -391,7 +391,7 @@ class BoardController extends BaseController {
         $post = $stmt->fetch();
 
         if (!$post || (!isset($_SESSION['user']) || ($_SESSION['user']['user_id'] != $post['user_id'] && $_SESSION['user']['role'] != 'admin'))) {
-            die("Unauthorized");
+            $this->deny();
         }
 
         try {
@@ -401,7 +401,7 @@ class BoardController extends BaseController {
         } catch (\Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
             error_log('Post delete failed: ' . $e->getMessage());
-            die("Delete failed. Please try again.");
+            $this->fail('Delete failed. Please try again.');
         }
 
         $this->redirect('/board/' . $post['board_slug']);
@@ -409,11 +409,11 @@ class BoardController extends BaseController {
 
     public function bulkDelete() {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            die("Unauthorized");
+            $this->deny();
         }
 
         $postIds = $_POST['post_ids'] ?? [];
-        if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $slug = $_POST['slug'] ?? '';
         
@@ -440,7 +440,7 @@ class BoardController extends BaseController {
         } catch (\Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
             error_log('Bulk delete failed: ' . $e->getMessage());
-            die("Bulk delete failed. Please try again.");
+            $this->fail('Bulk delete failed. Please try again.');
         }
 
         $this->redirect('/board/' . $slug);
@@ -461,7 +461,7 @@ class BoardController extends BaseController {
         $parent = $stmt->fetch();
 
         if (!$parent || $parent['reply_depth'] > 0) {
-            die("Cannot reply to a reply");
+            $this->deny('Cannot reply to a reply.');
         }
 
         // Check reply limit
@@ -470,11 +470,11 @@ class BoardController extends BaseController {
         $replyCount = $stmt->fetchColumn();
 
         if ($replyCount >= $parent['max_replies']) {
-            die("Reply limit reached (Max: {$parent['max_replies']})");
+            $this->deny('Reply limit reached.');
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+            if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
             
             $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $editor_mode = $_POST['editor_mode'] ?? 'visual';
@@ -495,7 +495,7 @@ class BoardController extends BaseController {
     }
 
     public function deleteReply($vars) {
-        if (!Csrf::verify($_POST['csrf_token'] ?? '')) die("CSRF validation failed");
+        if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         
         $id = $vars['id'];
         $db = Database::getInstance();
@@ -505,7 +505,7 @@ class BoardController extends BaseController {
         $reply = $stmt->fetch();
 
         if (!$reply || $reply['reply_depth'] == 0 || (!isset($_SESSION['user']) || ($_SESSION['user']['user_id'] != $reply['user_id'] && $_SESSION['user']['role'] != 'admin'))) {
-            die("Unauthorized");
+            $this->deny();
         }
 
         $parentId = $reply['parent_id'];
@@ -653,12 +653,12 @@ class BoardController extends BaseController {
         $file = $stmt->fetch();
 
         if (!$file) {
-            die("File not found");
+            $this->notFound('File not found.');
         }
 
         $filePath = CM_PUBLIC_PATH . $file['filepath'];
         if (!file_exists($filePath)) {
-            die("Physical file missing");
+            $this->fail('File is missing on the server.');
         }
 
         // 2. Logging logic

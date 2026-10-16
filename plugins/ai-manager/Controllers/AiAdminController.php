@@ -52,6 +52,9 @@ class AiAdminController
             if (!$prompt) {
                 throw new \Exception("Prompt is required.");
             }
+            if (!AiService::isAvailable()) {
+                throw new \Exception("AI engine is not installed. Run: composer require neuron-core/neuron-ai");
+            }
 
             $aiService = new AiService();
             $content = $aiService->generate($prompt);

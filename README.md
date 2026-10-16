@@ -66,22 +66,23 @@ Neuron AI 기반의 챗봇 플러그인입니다. 사이트의 콘텐츠(게시�
 
 | Category | Technology |
 |----------|-----------|
-| **Backend** | PHP 8.x |
-| **Database** | MySQL / MariaDB (PDO) |
+| **Backend** | PHP 8.1+ |
+| **Database** | MySQL 8.0+ / MariaDB (PDO, utf8mb4) |
 | **Frontend** | Bootstrap 5.3.3, jQuery 4.0, Font Awesome 6.0 |
-| **Routing** | FastRoute (nikic/fast-route) |
-| **Template** | Quill.js (Rich Text Editor), Chart.js |
-| **Security** | CSRF Tokens, Bcrypt, PDO, .htaccess |
+| **Routing** | FastRoute (nikic/fast-route) — 보안 패치는 `composer audit`로 추적 |
+| **Template** | Asamiya Editor (자체 플러그인), Chart.js |
+| **Security** | CSRF Tokens, Bcrypt, PDO, CSP, 2FA-TOTP, CAPTCHA |
 
 ---
 
 ## 🚀 빠른 시작
 
 ### 1️⃣ **시스템 요구사항**
-- PHP 8.0 이상
-- MySQL 5.7 이상
-- Composer
-- Apache 또는 Nginx (mod_rewrite 필요)
+- PHP 8.1 이상 (+ `mbstring`, `gd`, `pdo_mysql`, `dom`, `openssl` 확장)
+- MySQL 8.0 이상 (5.7 사용 시 `innodb_large_prefix=ON` + `DYNAMIC` row format 필요)
+- Composer 2.x
+- Apache (`mod_rewrite` 필요) 또는 Nginx
+- 권장: DocumentRoot를 `public/`으로 지정 (보안상 가장 안전)
 
 ### 2️⃣ **설치**
 
@@ -93,13 +94,32 @@ cd NeuronAIPHP
 # Composer 의존성 설치
 composer install
 
-# 환경 변수 설정
-cp .env.example .env
-# .env 파일을 열어 데이터베이스 정보 입력
+# 의존성 보안 점검 (권장)
+composer audit
 ```
 
+`.env`를 수동으로 만들 필요 없습니다. 브라우저로 접속하면 설치 마법사가 `.env`를 자동 생성합니다.
+
 ### 3️⃣ **자동 설치**
-브라우저에서 접속 시 자동으로 설치 화면이 나타납니다. 안내에 따라 DB 정보를 입력하면 설치가 완료됩니다.
+1. 브라우저에서 사이트에 접속하면 `/install` 화면이 나타납니다.
+2. DB 접속 정보와 관리자 계정(이메일·8자 이상 비밀번호)을 입력합니다.
+3. 완료 후 `install.lock`이 생성되어 재설치가 차단됩니다.
+
+### 4️⃣ **설치 후 필수 조치 (보안)**
+- `views/install/` 디렉토리 삭제 (설치 파일 노출 방지)
+- `.env` 파일 권한 `600` 확인
+- HTTPS 적용 (세션 Secure 쿠키가 HTTPS에서만 동작)
+- 관리자 계정 2FA 활성화 (마이페이지 → Two-Factor Authentication)
+- `SECURITY.md`의 배포 체크리스트 확인
+
+### 5️⃣ **AI 플러그인 (선택)**
+챗봇·AI 글쓰기를 쓰려면 별도 설치가 필요합니다 (코어에는 포함되지 않음):
+
+```bash
+composer require neuron-core/neuron-ai
+```
+
+미설치 상태에서도 사이트는 정상 동작하며, AI 기능 호출 시 안내 메시지가 표시됩니다.
 
 ---
 

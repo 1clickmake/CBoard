@@ -2,5 +2,6 @@
     "name": "admin-ai",
     "version": "1.0.0",
     "description": "AI-powered administrative assistant for managing users and visitors.",
-    "author": "Antigravity"
+    "author": "Antigravity",
+    "license": "proprietary"
 }

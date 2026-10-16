@@ -220,7 +220,7 @@ check_rate_limit('login', 5, 60);  // Max 5 attempts per minute
 
 ### Regular Maintenance:
 
-- [ ] Update PHP and all dependencies
+- [ ] Update PHP and all dependencies (`composer update` + `composer audit`)
 - [ ] Review access logs for suspicious activity
 - [ ] Monitor failed login attempts
 - [ ] Update blacklisted IPs

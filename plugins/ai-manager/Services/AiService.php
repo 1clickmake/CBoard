@@ -16,8 +16,15 @@ class AiService
 {
     private $config;
 
+    public static function isAvailable() {
+        return class_exists('NeuronAI\\Agent');
+    }
+
     public function __construct()
     {
+        if (!self::isAvailable()) {
+            throw new Exception("AI engine is not installed. Run: composer require neuron-core/neuron-ai");
+        }
         $db = Database::getInstance();
         $this->config = $db->query("SELECT * FROM `ai_config` WHERE `id` = 1")->fetch();
     }

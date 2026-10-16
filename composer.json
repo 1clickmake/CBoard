@@ -9,10 +9,15 @@
         "ext-pdo_mysql": "*",
         "ext-dom": "*",
         "ext-openssl": "*",
-        "neuron-core/neuron-ai": "^1.0",
         "vlucas/phpdotenv": "^5.5",
         "nikic/fast-route": "^1.3",
         "phpmailer/phpmailer": "^7.0"
+    },
+    "suggest": {
+        "neuron-core/neuron-ai": "Required only for AI plugins (chatbot, ai-manager, admin-ai). Install with: composer require neuron-core/neuron-ai"
+    },
+    "scripts": {
+        "audit": "composer audit"
     },
     "autoload": {
         "psr-4": {
