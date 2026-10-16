@@ -84,6 +84,8 @@
 
 ## 3. 플러그인 (Plugins)
 
+> AI 플러그인(챗봇·AI 매니저)은 별도 패키지가 필요합니다. 사용하려면 서버에서 `composer require neuron-core/neuron-ai` 실행 후 API 키를 등록하세요. 미설치 시 해당 메뉴는 안내 메시지만 표시되고 사이트 나머지 기능은 정상 동작합니다.
+
 ### 🤖 챗봇 설정 (Chatbot Settings)
 - **개요**: **Neuron AI** 기반의 지능형 챗봇 위젯을 설정합니다.
 - **주요 기능**:
