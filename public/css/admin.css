@@ -896,9 +896,92 @@ option {
 }
 
 /* ================= Global light teal admin theme ================= */
+html {
+    background-color: #f1f5f9;
+}
+
 body {
     background-color: #f1f5f9;
     color: #0f172a;
+    overflow-x: clip;
+}
+
+.admin-main,
+.admin-content {
+    min-width: 0;
+}
+
+.admin-content {
+    overflow-x: clip;
+}
+
+/* Topbar overflow guards */
+.admin-topbar {
+    overflow-x: clip;
+}
+
+.topbar-left {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.topbar-left h5 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topbar-right {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Grid blowout guards */
+.tn-stats > *,
+.tn-cols > *,
+.admin-grid > * {
+    min-width: 0;
+}
+
+.tn-admin-footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    margin-top: auto;
+}
+
+.tn-live-btn-sm {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+}
+
+/* AI assistant card (admin-ai plugin) in light theme */
+.ai-assistant-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+}
+
+.ai-input {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+.ai-input::placeholder {
+    color: #94a3b8 !important;
+}
+
+.ai-input:focus {
+    border-color: #0d9488 !important;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12) !important;
+}
+
+.ai-explanation {
+    color: #64748b !important;
 }
 
 /* Sidebar */

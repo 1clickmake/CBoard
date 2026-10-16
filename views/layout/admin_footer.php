@@ -1,6 +1,6 @@
         </div> <!-- End admin-content -->
         
-        <footer style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.1);">
+        <footer class="tn-admin-footer">
             &copy; <?= date('Y') ?> Admin Dashboard. All rights reserved.
         </footer>
     </main> <!-- End admin-main -->

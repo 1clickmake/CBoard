@@ -3,14 +3,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="tn-dash">
-    <div class="tn-dash-head">
-        <div>
-            <h1>Dashboard</h1>
-            <p>한눈에 보는 사이트 현황입니다.</p>
-        </div>
-        <a href="/" target="_blank" class="tn-live-btn">Live Site <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-    </div>
-
     <?php do_action('admin_dashboard_before_grid'); ?>
 
     <!-- Stat cards -->

@@ -98,6 +98,7 @@
             </div>
 
             <div class="topbar-right">
+                <a href="/" target="_blank" class="tn-live-btn tn-live-btn-sm">Live Site <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
                 <div class="user-profile">
                     <div style="text-align: right; line-height: 1.2;">
                         <div style="font-size: 0.85rem; font-weight: 600;"><?= htmlspecialchars($user['username'] ?? 'Admin') ?></div>
