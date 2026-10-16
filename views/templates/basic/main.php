@@ -17,9 +17,9 @@ foreach ($groups as $g) {
     <!-- 히어로 -->
     <section class="simple-hero">
         <div class="simple-hero-text">
-            <span class="simple-hero-badge">가벼운 미니멀 커뮤니티</span>
-            <h2>심플하게,<br>깔끔하게 소통하세요.</h2>
-            <p><?= htmlspecialchars($siteName) ?> — 불필요한 장식을 덜어내고 글과 사람에 집중한 공간입니다.</p>
+            <span class="simple-hero-badge">누구나 무료로 쓰는 배포형 게시판</span>
+            <h2>다운로드 한 번으로,<br>우리 커뮤니티 완성.</h2>
+            <p><?= htmlspecialchars($siteName) ?> — 설치 5분, 게시판·갤러리·블로그·회원 포인트까지 담은 오픈소스 PHP 게시판 솔루션입니다.</p>
             <div class="simple-hero-btns">
                 <?php if ($freeSlug): ?>
                     <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary">글 쓰러 가기</a>
