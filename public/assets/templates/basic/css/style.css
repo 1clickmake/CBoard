@@ -2283,6 +2283,30 @@ p {
     padding-bottom: 0;
 }
 
+.simple-gnb-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.simple-btn-contact {
+    flex-shrink: 0;
+    border: none;
+    background: #4f46e5;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    margin: 6px 0;
+}
+
+.simple-btn-contact:hover {
+    background: #4338ca;
+}
+
 .simple-gnb-list {
     display: flex;
     align-items: center;
@@ -2732,6 +2756,77 @@ p {
     font-size: 0.83rem;
     color: #9ca3af;
     text-align: center;
+}
+
+/* Main layout: aside + content */
+.simple-main-layout {
+    display: grid;
+    grid-template-columns: 264px minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+    margin-bottom: 10px;
+}
+
+.simple-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 150px;
+}
+
+.simple-aside-card {
+    padding: 18px;
+}
+
+.simple-content {
+    min-width: 0;
+}
+
+/* Contact modal */
+.simple-contact-modal {
+    border-radius: 20px;
+    border: none;
+}
+
+.simple-contact-modal .modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 18px 24px;
+}
+
+.simple-contact-modal .modal-title {
+    font-weight: 800;
+    color: #111827;
+}
+
+.simple-contact-modal .modal-body {
+    padding: 6px 24px 24px;
+}
+
+.simple-contact-modal .contact-section {
+    padding: 0;
+    margin: 0;
+}
+
+.simple-contact-modal .form-container {
+    box-shadow: none;
+    padding: 14px 0 0;
+    margin: 0;
+    max-width: none;
+}
+
+.simple-contact-modal .form-header {
+    display: none;
+}
+
+@media (max-width: 960px) {
+    .simple-main-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .simple-aside {
+        position: static;
+    }
 }
 
 @media (max-width: 860px) {

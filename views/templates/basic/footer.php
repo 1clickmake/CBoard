@@ -57,6 +57,23 @@
     </div>
 </footer>
 
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content simple-contact-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">문의하기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <?php global $csrf_token; ?>
+                <?php $captcha_q = \App\Core\Captcha::generate(); ?>
+                <?php include CM_VIEWS_PATH . '/partials/formmail.php'; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

@@ -23,6 +23,11 @@ async function submitContactForm(e) {
         if (result.success) {
             alert('Your message has been sent successfully!');
             e.target.reset();
+            const modalEl = document.getElementById('contactModal');
+            if (modalEl && window.bootstrap) {
+                const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+                modal.hide();
+            }
         } else {
             alert('Error: ' + (result.message || 'Something went wrong.'));
         }

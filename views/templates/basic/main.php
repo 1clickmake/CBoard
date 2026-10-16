@@ -68,20 +68,14 @@ foreach ($groups as $g) {
         </div>
     </section>
 
-    <!-- 게시판 카드 -->
-    <section class="simple-section">
-        <div class="simple-section-head">
-            <h3>게시판</h3>
-        </div>
-        <div class="simple-card-grid">
+    <!-- 본문: 좌측 aside + 컨텐츠 -->
+    <div class="simple-main-layout">
+        <aside class="simple-aside">
             <?php foreach ($groups as $group): ?>
-                <div class="simple-card">
+                <div class="simple-card simple-aside-card">
                     <h4 class="simple-card-title"><?= htmlspecialchars($group['name']) ?></h4>
-                    <?php if (!empty($group['description'])): ?>
-                        <p class="simple-card-desc"><?= htmlspecialchars($group['description']) ?></p>
-                    <?php endif; ?>
                     <ul class="simple-card-links">
-                        <?php foreach ($group['boards'] as $board): ?>
+                        <?php foreach (($group['boards'] ?? []) as $board): ?>
                             <li>
                                 <a href="/board/<?= $board['slug'] ?>">
                                     <?= htmlspecialchars($board['title']) ?>
@@ -94,58 +88,52 @@ foreach ($groups as $g) {
             <?php endforeach; ?>
 
             <?php if (empty($groups)): ?>
-                <div class="simple-card" style="grid-column: 1 / -1; text-align: center;">
+                <div class="simple-card simple-aside-card" style="text-align: center;">
                     관리자로 로그인해 그룹과 게시판을 만들어 주세요.
                 </div>
             <?php endif; ?>
-        </div>
-    </section>
+        </aside>
 
-    <!-- 최신글 -->
-    <section class="simple-section">
-        <div class="simple-section-head">
-            <h3>최신 글</h3>
-        </div>
-        <?php
-            $board_slug = 'free';
-            $limit = 5;
-            include CM_VIEWS_PATH . '/partials/latest_posts.php';
-        ?>
-    </section>
+        <div class="simple-content">
+            <!-- 최신글 -->
+            <section class="simple-section">
+                <div class="simple-section-head">
+                    <h3>최신 글</h3>
+                </div>
+                <?php
+                    $board_slug = 'free';
+                    $limit = 5;
+                    include CM_VIEWS_PATH . '/partials/latest_posts.php';
+                ?>
+            </section>
 
-    <!-- 갤러리 -->
-    <section class="simple-section">
-        <div class="simple-section-head">
-            <h3>갤러리</h3>
-            <a href="/board/gallery" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
-        </div>
-        <?php
-            $board_slug = 'gallery';
-            $limit = 4;
-            include CM_VIEWS_PATH . '/partials/latest_gallery.php';
-        ?>
-    </section>
+            <!-- 갤러리 -->
+            <section class="simple-section">
+                <div class="simple-section-head">
+                    <h3>갤러리</h3>
+                    <a href="/board/gallery" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                </div>
+                <?php
+                    $board_slug = 'gallery';
+                    $limit = 4;
+                    include CM_VIEWS_PATH . '/partials/latest_gallery.php';
+                ?>
+            </section>
 
-    <!-- 블로그 -->
-    <section class="simple-section">
-        <div class="simple-section-head">
-            <h3>블로그</h3>
-            <a href="/board/blog" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+            <!-- 블로그 -->
+            <section class="simple-section">
+                <div class="simple-section-head">
+                    <h3>블로그</h3>
+                    <a href="/board/blog" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                </div>
+                <?php
+                    $board_slug = 'blog';
+                    $limit = 3;
+                    include CM_VIEWS_PATH . '/partials/latest_blog.php';
+                ?>
+            </section>
         </div>
-        <?php
-            $board_slug = 'blog';
-            $limit = 3;
-            include CM_VIEWS_PATH . '/partials/latest_blog.php';
-        ?>
-    </section>
-
-    <!-- 문의 -->
-    <section class="simple-section">
-        <div class="simple-section-head">
-            <h3>문의하기</h3>
-        </div>
-        <?php include CM_VIEWS_PATH . '/partials/formmail.php'; ?>
-    </section>
+    </div>
 </div>
 
 <?php include_footer($siteConfig); ?>

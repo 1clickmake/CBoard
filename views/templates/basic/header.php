@@ -69,7 +69,7 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 
     <!-- GNB -->
     <nav id="simple-gnb" aria-label="메인메뉴">
-        <div class="simple-inner">
+        <div class="simple-inner simple-gnb-wrap">
             <ul class="simple-gnb-list">
                 <li class="simple-gnb-home"><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
                 <?php foreach ($allBoards as $board): ?>
@@ -78,6 +78,9 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
                     </li>
                 <?php endforeach; ?>
             </ul>
+            <button type="button" class="simple-btn-contact" data-bs-toggle="modal" data-bs-target="#contactModal">
+                <i class="fa-solid fa-paper-plane"></i> 문의하기
+            </button>
         </div>
     </nav>
 </header>
