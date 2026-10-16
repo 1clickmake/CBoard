@@ -18,16 +18,32 @@ class AdminController extends BaseController {
 
     public function index() {
         $db = Database::getInstance();
-        $stats = ['users' => 0, 'posts' => 0, 'boards' => 0, 'today' => 0];
+        $stats = ['users' => 0, 'posts' => 0, 'boards' => 0, 'today' => 0, 'yesterday' => 0, 'total' => 0];
+        $daily = [];
+        $recentPosts = [];
+        $recentUsers = [];
         try {
             $stats['users'] = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
             $stats['posts'] = (int)$db->query("SELECT COUNT(*) FROM posts")->fetchColumn();
             $stats['boards'] = (int)$db->query("SELECT COUNT(*) FROM boards")->fetchColumn();
+            $today = date('Y-m-d');
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
             $stmt = $db->prepare("SELECT COUNT(*) FROM visitor_logs WHERE visit_date = ?");
-            $stmt->execute([date('Y-m-d')]);
+            $stmt->execute([$today]);
             $stats['today'] = (int)$stmt->fetchColumn();
+            $stmt->execute([$yesterday]);
+            $stats['yesterday'] = (int)$stmt->fetchColumn();
+            $stats['total'] = (int)$db->query("SELECT COUNT(*) FROM visitor_logs")->fetchColumn();
+            $daily = array_reverse($db->query("SELECT visit_date, COUNT(*) as count FROM visitor_logs GROUP BY visit_date ORDER BY visit_date DESC LIMIT 15")->fetchAll());
+            $recentPosts = $db->query("SELECT p.id, p.title, p.created_at, p.user_id, b.title AS board_title FROM posts p LEFT JOIN boards b ON p.board_id = b.id ORDER BY p.created_at DESC LIMIT 5")->fetchAll();
+            $recentUsers = $db->query("SELECT user_id, username, level, created_at FROM users ORDER BY created_at DESC LIMIT 5")->fetchAll();
         } catch (\Throwable $e) {}
-        $this->view('admin/dashboard', ['stats' => $stats]);
+        $this->view('admin/dashboard', [
+            'stats' => $stats,
+            'daily' => $daily,
+            'recentPosts' => $recentPosts,
+            'recentUsers' => $recentUsers
+        ]);
     }
 
     public function config() {
