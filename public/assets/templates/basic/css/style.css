@@ -2186,6 +2186,13 @@ p {
     text-decoration: none;
 }
 
+.simple-logo-img {
+    height: 54px;
+    width: auto;
+    max-width: 240px;
+    object-fit: contain;
+}
+
 .simple-logo-mark {
     display: inline-flex;
     align-items: center;

@@ -42,7 +42,7 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
             <div id="simple-logo">
                 <a href="/" aria-label="<?= htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE') ?>">
                     <?php if (($siteConfig['logo_type'] ?? 'text') === 'image' && !empty($siteConfig['logo_image'])): ?>
-                        <img src="<?= sanitize_url($siteConfig['logo_image']) ?>" alt="<?= htmlspecialchars($siteConfig['site_name'] ?? '') ?>" style="max-height: 40px;">
+                        <img src="<?= sanitize_url($siteConfig['logo_image']) ?>" alt="<?= htmlspecialchars($siteConfig['site_name'] ?? '') ?>" class="simple-logo-img">
                     <?php else: ?>
                         <span class="simple-logo-mark"><?= htmlspecialchars($logoChar) ?></span>
                         <span class="simple-logo-text"><?= htmlspecialchars(!empty($siteConfig['logo_text']) ? $siteConfig['logo_text'] : ($siteConfig['site_name'] ?? 'CMAKE')) ?></span>
