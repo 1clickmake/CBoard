@@ -14,7 +14,7 @@
     </div>
 
     <!-- 검색 필터 -->
-    <form method="GET" class="row g-3 mb-4 p-3 rounded-4" style="background: rgba(255,255,255,0.05);">
+    <form method="GET" class="row g-3 mb-4 p-3 rounded-4" style="background: #f8fafc; border: 1px solid #e2e8f0;">
         <div class="col-md-4">
             <label class="form-label text-muted-small">내용 검색 (질문/답변)</label>
             <input type="text" name="search" class="form-control" value="<?= htmlspecialchars($search) ?>" placeholder="키워드 입력...">
@@ -72,7 +72,7 @@
                                     <span class="badge bg-primary me-1">Q</span> 
                                     <strong><?= htmlspecialchars($log['question']) ?></strong>
                                 </div>
-                                <div class="p-3 rounded-3" style="background: rgba(0,0,0,0.2); font-size: 0.9rem;">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155;">
                                     <span class="badge bg-success me-1">A</span> 
                                     <div class="d-inline text-muted-small"><?= nl2br(strip_tags(htmlspecialchars_decode($log['answer']))) ?></div>
                                 </div>
@@ -101,12 +101,12 @@
 <!-- Cleanup Modal -->
 <div class="modal fade" id="cleanupModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0" style="background: #1e1e2d; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <div class="modal-content border-0" style="background: #ffffff; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);">
             <form action="/admin/chatbot/logs/cleanup" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title">오래된 로그 자동 정리</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" style="color: #0f172a;">오래된 로그 자동 정리</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body py-4">
                     <p class="mb-3 text-muted-small">얼마나 오래된 데이터를 삭제하시겠습니까?</p>
@@ -129,7 +129,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-sm btn-cancel-light" data-bs-dismiss="modal">취소</button>
                     <button type="submit" class="btn btn-sm btn-danger">지금 정리하기</button>
                 </div>
             </form>
@@ -140,12 +140,14 @@
 <style>
 .cleanup-option {
     padding: 15px;
-    background: rgba(255,255,255,0.05);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s;
+    color: #334155;
 }
-.cleanup-option:hover { background: rgba(255,255,255,0.1); }
+.cleanup-option:hover { background: #f0fdfa; border-color: #0d9488; }
 .cleanup-option input { margin-right: 10px; }
 .btn-xs { padding: 1px 5px; font-size: 10px; }
 </style>

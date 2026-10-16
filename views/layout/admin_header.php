@@ -23,7 +23,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="sidebar">
         <a href="/admin" class="sidebar-brand">
-            <i class="fa-solid fa-bolt"></i>
+            <span class="brand-mark"><i class="fa-solid fa-bolt"></i></span>
             <span>ADMIN</span>
         </a>
 

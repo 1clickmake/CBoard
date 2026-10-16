@@ -8,7 +8,7 @@ include CM_LAYOUT_PATH . '/admin_header.php';
 <div class="glass-card">
     <div class="admin-header-flex">
         <h1><?= $title ?></h1>
-        <a href="/admin/pages" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Back to List</a>
+        <a href="/admin/pages" class="btn btn-cancel-light">Back to List</a>
     </div>
 
     <form id="pageForm" action="<?= $mode === 'create' ? '/admin/pages/create' : '/admin/pages/edit/' . $page['id'] ?>" method="POST">
@@ -48,10 +48,10 @@ include CM_LAYOUT_PATH . '/admin_header.php';
                     <?php do_action('admin_page_form_content_tools'); ?>
                     <div class="btn-group" role="group" style="background: rgba(255,255,255,0.1); padding: 4px; border-radius: 8px;">
                         <input type="radio" class="btn-check" name="editor_mode" id="mode_visual" value="visual" <?= ($page['editor_mode'] ?? 'visual') === 'visual' ? 'checked' : '' ?> autocomplete="off">
-                        <label class="btn btn-sm" for="mode_visual" style="color: white; border: none; padding: 0.35rem 1rem;">Visual</label>
-    
+                        <label class="btn btn-sm btn-mode-label" for="mode_visual">Visual</label>
+
                         <input type="radio" class="btn-check" name="editor_mode" id="mode_html" value="html" <?= ($page['editor_mode'] ?? 'visual') === 'html' ? 'checked' : '' ?> autocomplete="off">
-                        <label class="btn btn-sm" for="mode_html" style="color: white; border: none; padding: 0.25rem 0.75rem;">HTML</label>
+                        <label class="btn btn-sm btn-mode-label" for="mode_html">HTML</label>
                     </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@
 
     <!-- Create Group Form -->
     <!-- Create Group Form -->
-    <div id="createGroupForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="createGroupForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
 		<h2 style="margin-bottom: 1.5rem;">New Group</h2>
         <form action="/admin/groups" method="POST">
             <div class="admin-grid" style="margin-bottom: 1.5rem;">
@@ -31,7 +31,7 @@
 
     <!-- Edit Group Form -->
     <!-- Edit Group Form -->
-    <div id="editGroupForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="editGroupForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
         <h2 style="margin-bottom: 1.5rem;">Edit Group</h2>
         <form action="/admin/groups/update" method="POST">
             <input type="hidden" name="id" id="edit-id">
@@ -51,7 +51,7 @@
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="$('#editGroupForm').slideUp()">Cancel</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#editGroupForm').slideUp()">Cancel</button>
             </div>
         </form>
     </div>

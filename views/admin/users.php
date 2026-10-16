@@ -7,7 +7,7 @@
     </div>
 
     <!-- Create User Form -->
-    <div id="createUserForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="createUserForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
         <h2 style="margin-bottom: 1.5rem;">Register New Member</h2>
         <form action="/admin/users/create" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -54,12 +54,12 @@
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button type="submit" class="btn btn-primary">Create Member</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="$('#createUserForm').slideUp()">Cancel</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#createUserForm').slideUp()">Cancel</button>
             </div>
         </form>
     </div>
 
-    <div id="editUserForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="editUserForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
         <h2 id="editFormTitle" style="margin-bottom: 1.5rem;">Edit Member</h2>
         <form action="/admin/users/update" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -107,7 +107,7 @@
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="$('#editUserForm').slideUp()">Cancel</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#editUserForm').slideUp()">Cancel</button>
             </div>
         </form>
     </div>
@@ -135,14 +135,14 @@
                         <td style="font-weight: 600;"><?= htmlspecialchars($user['username']) ?></td>
                         <td><?= htmlspecialchars($user['email']) ?></td>
                         <td>
-                            <span class="badge-role" style="background: <?= $user['role'] === 'admin' ? '#6366f1' : 'rgba(255,255,255,0.1)' ?>;">
+                            <span class="badge-role" style="background: <?= $user['role'] === 'admin' ? '#0d9488; color: #fff;' : '#f1f5f9; color: #475569;' ?>">
                                 <?= strtoupper($user['role']) ?>
                             </span>
                         </td>
                         <td>
                             <div class="text-muted-small" style="line-height: 1.4;">
-                                <span style="color: #fbbf24;"><i class="fa-solid fa-coins"></i> <?= number_format($user['point']) ?></span><br>
-                                <span style="color: #60a5fa;"><i class="fa-solid fa-shield"></i> LV.<?= $user['level'] ?></span>
+                                <span style="color: #b45309;"><i class="fa-solid fa-coins"></i> <?= number_format($user['point']) ?></span><br>
+                                <span style="color: #2563eb;"><i class="fa-solid fa-shield"></i> LV.<?= $user['level'] ?></span>
                             </div>
                         </td>
                         <td>

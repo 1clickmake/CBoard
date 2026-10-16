@@ -237,7 +237,7 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn" onclick="closeSmtpSettings()" style="background: rgba(255,255,255,0.1); color: white;">Close</button>
+                <button type="button" class="btn" onclick="closeSmtpSettings()" class="btn btn-cancel-light">Close</button>
                 <button type="submit" class="btn btn-primary">Save Settings</button>
             </div>
         </form>

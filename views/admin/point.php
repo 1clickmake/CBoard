@@ -10,7 +10,7 @@
     </div>
 
     <!-- Manual Point Adjustment Form -->
-    <div id="adjustPointForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="adjustPointForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
         <h2 style="margin-bottom: 1.5rem;">Give / Subtract Points</h2>
         <form action="/admin/point/update" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -30,7 +30,7 @@
             </div>
             <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <button type="submit" class="btn btn-primary">Apply Points</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="$('#adjustPointForm').slideUp()">Cancel</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#adjustPointForm').slideUp()">Cancel</button>
             </div>
         </form>
     </div>
@@ -41,7 +41,7 @@
             <input type="text" name="search" class="form-control" placeholder="Search by User ID or Reason..." value="<?= htmlspecialchars($search) ?>">
             <button type="submit" class="btn btn-primary">Search</button>
             <?php if ($search): ?>
-                <a href="/admin/point" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Clear</a>
+                <a href="/admin/point" class="btn btn-cancel-light">Clear</a>
             <?php endif; ?>
         </form>
     </div>

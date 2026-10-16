@@ -3,7 +3,7 @@
 <div class="glass-card">
     <!-- Category Settings Section -->
     <div>
-        <div id="categoryConfigForm" class="glass-card mb-3" style="display: none; background: rgba(15, 23, 42, 0.4);">
+        <div id="categoryConfigForm" class="glass-card mb-3" style="display: none; background: #f8fafc;">
             <form action="/admin/faq/config" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                 <div class="form-group mb-3">
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Create FAQ Form -->
-    <div id="createFaqForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="createFaqForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
         <h2 style="margin-bottom: 1.5rem;">Add New FAQ</h2>
         <form action="/admin/faq/create" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -61,13 +61,13 @@
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button type="submit" class="btn btn-primary" onclick="syncCategoryConfig('create')">Create FAQ</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="$('#createFaqForm').slideUp()">Cancel</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#createFaqForm').slideUp()">Cancel</button>
             </div>
         </form>
     </div>
 
     <!-- Edit FAQ Form -->
-    <div id="editFaqForm" class="glass-card" style="display: none; background: rgba(15, 23, 42, 0.4); margin-bottom: 2rem;">
+    <div id="editFaqForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
         <h2 style="margin-bottom: 1.5rem;">Edit FAQ</h2>
         <form action="/admin/faq/update" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
@@ -102,7 +102,7 @@
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="$('#editFaqForm').slideUp()">Cancel</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#editFaqForm').slideUp()">Cancel</button>
             </div>
         </form>
     </div>
@@ -161,7 +161,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr class="faq-answer-row" style="display: none; background: rgba(15, 23, 42, 0.2);">
+                        <tr class="faq-answer-row" style="display: none; background: #f8fafc;">
                             <td colspan="6" class="text-start p-4">
                                 <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary);">
                                     <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--primary);">ANSWER:</div>

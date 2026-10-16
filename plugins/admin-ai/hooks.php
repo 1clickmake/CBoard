@@ -177,11 +177,11 @@ add_action('admin_dashboard_before_grid', function() {
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { labels: { color: 'white' } }
+                                legend: { labels: { color: '#475569' } }
                             },
                             scales: {
-                                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                                y: { ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } },
+                                x: { ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } }
                             }
                         }
                     });

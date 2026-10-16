@@ -13,13 +13,13 @@
         <!-- Cleanup Component -->
         <form action="/admin/visitors/cleanup" method="POST" onsubmit="return confirm('Are you sure you want to delete old logs? This action cannot be undone.')">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-            <div style="display: flex; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <select name="period" class="form-select form-select-sm" style="background: transparent !important; border: none !important; width: auto;">
-                    <option value="3" style="background: #1e293b;">Older than 3 Months</option>
-                    <option value="6" style="background: #1e293b;">Older than 6 Months</option>
-                    <option value="12" style="background: #1e293b;">Older than 12 Months</option>
+                    <option value="3" style="">Older than 3 Months</option>
+                    <option value="6" style="">Older than 6 Months</option>
+                    <option value="12" style="">Older than 12 Months</option>
                 </select>
-                <button type="submit" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">
+                <button type="submit" class="btn btn-sm" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">
                     <i class="fa-solid fa-trash-can"></i> Cleanup
                 </button>
             </div>
@@ -27,29 +27,29 @@
     </div>
 
     <div class="admin-grid" style="margin-bottom: 2rem;">
-        <div class="stat-card" style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
             <div class="text-muted-small" style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px;">
                 <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);"></span>
                 Live Visitors
             </div>
             <div style="font-size: 2rem; font-weight: 700; color: #10b981;"><?= number_format($stats['active']) ?></div>
         </div>
-        <div class="stat-card" style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
             <div class="text-muted-small" style="margin-bottom: 0.5rem;">Today</div>
             <div class="text-primary-weight" style="font-size: 2rem;"><?= number_format($stats['today']) ?></div>
         </div>
-        <div class="stat-card" style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
             <div class="text-muted-small" style="margin-bottom: 0.5rem;">Yesterday</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #f8fafc;"><?= number_format($stats['yesterday']) ?></div>
+            <div style="font-size: 2rem; font-weight: 700; color: #0f172a;"><?= number_format($stats['yesterday']) ?></div>
         </div>
-        <div class="stat-card" style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
             <div class="text-muted-small" style="margin-bottom: 0.5rem;">Total Visitors</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #f8fafc;"><?= number_format($stats['total']) ?></div>
+            <div style="font-size: 2rem; font-weight: 700; color: #0f172a;"><?= number_format($stats['total']) ?></div>
         </div>
     </div>
 
-    <div style="background: rgba(15, 23, 42, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border);">
-        <h3 style="margin-bottom: 1.5rem; color: #f8fafc; font-weight: 500;">Traffic Trend (Last 15 Days)</h3>
+    <div style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
+        <h3 style="margin-bottom: 1.5rem; color: #0f172a; font-weight: 700;">Traffic Trend (Last 15 Days)</h3>
         <div style="height: 300px; width: 100%;">
             <canvas id="visitorChart"></canvas>
         </div>
@@ -81,7 +81,7 @@
                         <div class="text-muted-small"><?= $log['visit_time'] ?></div>
                     </td>
                     <td>
-                        <span class="badge-role" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; font-family: monospace;">
+                        <span class="badge-role" style="background: rgba(13, 148, 136, 0.1); color: #0f766e; font-family: monospace;">
                             <?= $log['ip_address'] ?>
                         </span>
                     </td>

@@ -28,19 +28,19 @@ add_action('admin_page_form_content_tools', function() {
 add_action('admin_page_form_after_form', function() {
     if (!has_any_ai_key()) return;
     echo '
-    <div id="aiModal" class="admin-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; backdrop-filter: blur(5px);">
-        <div class="modal-content-solid" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; padding: 2.5rem; background: #1e1e2d; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+    <div id="aiModal" class="admin-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.5); z-index: 9999; backdrop-filter: blur(5px);">
+        <div class="modal-content-solid" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; padding: 2.5rem; background: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);">
             <h3 class="mb-3 d-flex align-items-center">
                 <i class="fa-solid fa-wand-magic-sparkles me-2 text-primary"></i> AI Content Helper
             </h3>
             <p class="text-muted-small mb-4">어떤 내용을 작성할까요? 구체적인 지시를 내리면 더 좋은 결과가 나옵니다.</p>
             
             <div class="form-group mb-4">
-                <textarea id="ai_instruction" class="form-control" style="height: 150px; background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.1);" placeholder="예: 우리 회사의 연혁과 비전을 포함해서 아주 전문적이고 신뢰감 있는 톤으로 회사 소개 페이지를 작성해줘."></textarea>
+                <textarea id="ai_instruction" class="form-control" style="height: 150px;" placeholder="예: 우리 회사의 연혁과 비전을 포함해서 아주 전문적이고 신뢰감 있는 톤으로 회사 소개 페이지를 작성해줘."></textarea>
             </div>
             
             <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn" onclick="$(\'#aiModal\').fadeOut(200)" style="background: rgba(255,255,255,0.1); color: white;">취소</button>
+                <button type="button" class="btn btn-cancel-light" onclick="$(\'#aiModal\').fadeOut(200)">취소</button>
                 <button type="button" id="btn-ai-submit" class="btn btn-primary">작성 시작</button>
             </div>
         </div>

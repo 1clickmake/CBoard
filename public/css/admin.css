@@ -1,11 +1,11 @@
 :root {
-    --sidebar-bg: #1F1F24;
-    --main-bg: #101014;
-    --primary: #6366f1;
-    --text-muted: #8d8d97;
-    --text-light: #e1e1e6;
-    --nav-item-hover: rgba(255, 255, 255, 0.05);
-    --border-color: rgba(255, 255, 255, 0.1);
+    --sidebar-bg: #ffffff;
+    --main-bg: #f1f5f9;
+    --primary: #0d9488;
+    --text-muted: #64748b;
+    --text-light: #0f172a;
+    --nav-item-hover: #f0fdfa;
+    --border-color: #e2e8f0;
 }
 
 body {
@@ -893,4 +893,318 @@ option {
 
 .bg-dark-soft {
     background: rgba(255, 255, 255, 0.05);
+}
+
+/* ================= Global light teal admin theme ================= */
+body {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 4px 0 20px rgba(15, 23, 42, 0.04);
+}
+
+.sidebar-brand {
+    color: #0f172a;
+}
+
+.sidebar-brand .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.nav-category {
+    color: #94a3b8;
+}
+
+.sidebar-nav a {
+    color: #475569;
+    font-weight: 500;
+}
+
+.sidebar-nav a i {
+    color: #94a3b8;
+}
+
+.sidebar-nav a:hover {
+    background-color: #f0fdfa;
+    color: #0d9488;
+}
+
+.sidebar-nav a:hover i {
+    color: #0d9488;
+}
+
+.sidebar-nav a.active {
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+}
+
+.sidebar-nav a.active i {
+    color: #fff;
+}
+
+.sidebar-nav a[href="/logout"] {
+    color: #ef4444 !important;
+}
+
+/* Topbar */
+.admin-topbar {
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-topbar h5 {
+    color: #0f172a;
+}
+
+.mobile-toggle {
+    color: #0f172a;
+}
+
+.user-profile img {
+    background: #ccfbf1;
+}
+
+/* Cards */
+.glass-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.admin-section-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-section-header {
+    color: #0d9488;
+}
+
+.admin-header-border {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-sticky-header {
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    border: none;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+.btn-primary:hover {
+    background: #0f766e;
+    transform: translateY(-1px);
+    color: #fff;
+}
+
+.btn-secondary {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+.btn-secondary:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.btn-cancel-light {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn-cancel-light:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Forms */
+.form-label {
+    color: #334155;
+}
+
+.form-control,
+.form-select {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+select.form-control option,
+select.form-select option,
+.glass-card select option,
+option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #ffffff !important;
+    border-color: #0d9488 !important;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12) !important;
+    color: #0f172a !important;
+}
+
+.form-control::placeholder {
+    color: #94a3b8 !important;
+}
+
+.form-check-input:checked {
+    background-color: #0d9488;
+    border-color: #0d9488;
+}
+
+/* Tables */
+.table {
+    color: #334155 !important;
+}
+
+.table thead th {
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table tbody td {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table-responsive {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Misc dark remnants */
+.text-primary-weight {
+    color: #0d9488;
+}
+
+.text-muted-small,
+.help-text {
+    color: #64748b;
+}
+
+.selection-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+.selection-card:hover {
+    background: #f8fafc;
+}
+
+.selection-card.active {
+    background: #f0fdfa;
+    border-color: #0d9488;
+    color: #0d9488;
+}
+
+.logo-preview-container {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+}
+
+.admin-content .alert {
+    border-radius: 12px;
+}
+
+.admin-modal,
+#smtpModal .glass-card {
+    color: #0f172a;
+}
+
+.mail-recipients-box,
+.mail-attachments-box {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.bg-dark-soft {
+    background: #f1f5f9 !important;
+}
+
+.pagination .page-link {
+    color: #0d9488;
+    border-color: #e2e8f0;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d9488;
+    border-color: #0d9488;
+    color: #fff;
+}
+
+/* Editor mode segmented labels (page form) */
+#pageForm .btn-group {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-mode-label {
+    color: #64748b !important;
+    border: none;
+    padding: 0.35rem 1rem;
+}
+
+.btn-check:checked + .btn-mode-label {
+    background: #ffffff !important;
+    color: #0d9488 !important;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+    border-radius: 6px;
+}
+
+.dropdown-menu {
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+}
+
+pre, code {
+    color: #0f766e;
 }
