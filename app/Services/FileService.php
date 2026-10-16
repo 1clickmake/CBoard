@@ -15,7 +15,7 @@ class FileService {
         }
         $ht = rtrim($fullPath, '/\\') . '/.htaccess';
         if (!file_exists($ht)) {
-            @file_put_contents($ht, "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\nRemoveHandler .php .phtml\n");
+            @file_put_contents($ht, "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\\$\">\n    Require all denied\n</FilesMatch>\nRemoveHandler .php .phtml\nRemoveType .php .phtml\n");
         }
     }
 

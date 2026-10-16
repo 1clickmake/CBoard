@@ -105,7 +105,7 @@ class AdminController extends BaseController {
             if (!is_dir($fullPath)) {
                 mkdir($fullPath, 0755, true);
             }
-            @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\n");
+            @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\n");
 
             $newName = 'logo_' . time() . '.' . $ext;
             if (move_uploaded_file($_FILES['logo_image']['tmp_name'], $fullPath . $newName)) {
@@ -156,7 +156,7 @@ class AdminController extends BaseController {
         if (!is_dir($fullPath)) {
             mkdir($fullPath, 0755, true);
         }
-        @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\n");
+        @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\n");
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             if ($_FILES['image']['size'] > 10485760) { http_response_code(413); echo json_encode(['error' => 'Too large']); exit; }
@@ -708,7 +708,7 @@ class AdminController extends BaseController {
         $uploadDir = '/data/page/';
         $fullPath = CM_PUBLIC_PATH . $uploadDir;
         if (!is_dir($fullPath)) mkdir($fullPath, 0755, true);
-        @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\nphp_flag engine off\n");
+        @file_put_contents($fullPath . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi)\$\">\n    Require all denied\n</FilesMatch>\n");
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             if ($_FILES['image']['size'] > 10485760) { http_response_code(413); echo json_encode(['error' => 'Too large']); exit; }
