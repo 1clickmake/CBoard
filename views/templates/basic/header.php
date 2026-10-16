@@ -52,12 +52,18 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 
             <div class="simple-header-links">
                 <?php if ($is_member): ?>
+                    <button type="button" class="simple-btn-contact" data-bs-toggle="modal" data-bs-target="#contactModal">
+                        <i class="fa-solid fa-paper-plane"></i> 문의하기
+                    </button>
                     <a href="/mypage" class="simple-user-chip">
                         <i class="fa-solid fa-circle-user"></i> <?= htmlspecialchars($user['username']) ?>
                     </a>
                 <?php else: ?>
                     <a href="/login" class="simple-btn-login">로그인</a>
                     <a href="/register" class="simple-btn-join">회원가입</a>
+                    <button type="button" class="simple-btn-contact" data-bs-toggle="modal" data-bs-target="#contactModal">
+                        <i class="fa-solid fa-paper-plane"></i> 문의하기
+                    </button>
                 <?php endif; ?>
             </div>
 
@@ -69,7 +75,7 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 
     <!-- GNB -->
     <nav id="simple-gnb" aria-label="메인메뉴">
-        <div class="simple-inner simple-gnb-wrap">
+        <div class="simple-inner">
             <ul class="simple-gnb-list">
                 <li class="simple-gnb-home"><a href="/" aria-label="홈"><i class="fa-solid fa-house"></i></a></li>
                 <?php foreach ($allBoards as $board): ?>
@@ -78,9 +84,6 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <button type="button" class="simple-btn-contact" data-bs-toggle="modal" data-bs-target="#contactModal">
-                <i class="fa-solid fa-paper-plane"></i> 문의하기
-            </button>
         </div>
     </nav>
 </header>
@@ -115,6 +118,9 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 
             <a href="/" class="mobile-nav-item"><i class="fa-solid fa-house"></i> Home</a>
             <a href="/faq" class="mobile-nav-item"><i class="fa-solid fa-question-circle"></i> FAQ</a>
+            <button type="button" class="mobile-nav-item" data-bs-toggle="modal" data-bs-target="#contactModal" data-bs-dismiss="offcanvas" style="width: 100%; background: none; border: none; text-align: left; cursor: pointer; font-family: inherit;">
+                <i class="fa-solid fa-paper-plane"></i> 문의하기
+            </button>
 
             <?php foreach ($groups as $group): ?>
                 <div class="simple-mobile-group"><?= htmlspecialchars($group['name']) ?></div>
