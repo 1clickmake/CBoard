@@ -1,113 +1,113 @@
-<?php $title = 'Member Management'; include_admin_header($title); ?>
+<?php $title = t_admin('admin.users.title'); include_admin_header($title); ?>
 
 <div class="glass-card">
     <div class="admin-header-flex">
-        <h1>Member Management</h1>
-        <button class="btn btn-primary" onclick="$('#createUserForm').slideToggle(); $('#editUserForm').slideUp();">+ New Member</button>
+        <h1><?= t_admin('admin.users.title') ?></h1>
+        <button class="btn btn-primary" onclick="$('#createUserForm').slideToggle(); $('#editUserForm').slideUp();"><?= t_admin('admin.users.new') ?></button>
     </div>
 
     <!-- Create User Form -->
     <div id="createUserForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
-        <h2 style="margin-bottom: 1.5rem;">Register New Member</h2>
+        <h2 style="margin-bottom: 1.5rem;"><?= t_admin('admin.users.create_title') ?></h2>
         <form action="/admin/users/create" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             <div class="admin-grid" style="margin-bottom: 1.5rem;">
                 <div class="form-group">
-                    <label class="form-label">User ID</label>
-                    <input type="text" name="user_id" class="form-control" required placeholder="Enter user ID">
+                    <label class="form-label"><?= t_admin('admin.users.user_id') ?></label>
+                    <input type="text" name="user_id" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required placeholder="Enter username">
+                    <label class="form-label"><?= t_admin('admin.users.username') ?></label>
+                    <input type="text" name="username" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" required placeholder="Enter email address">
+                    <label class="form-label"><?= t_admin('admin.users.email') ?></label>
+                    <input type="email" name="email" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Role</label>
+                    <label class="form-label"><?= t_admin('admin.users.role') ?></label>
                     <select name="role" class="form-select">
-                        <option value="user">USER</option>
-                        <option value="admin">ADMIN</option>
+                        <option value="user"><?= t_admin('admin.users.role_user') ?></option>
+                        <option value="admin"><?= t_admin('admin.users.role_admin') ?></option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required placeholder="Enter password">
+                    <label class="form-label"><?= t_admin('admin.users.password') ?></label>
+                    <input type="password" name="password" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Country</label>
-                    <input type="text" name="country" class="form-control" placeholder="KR, US, etc.">
+                    <label class="form-label"><?= t_admin('admin.users.country') ?></label>
+                    <input type="text" name="country" class="form-control" placeholder="KR, US">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Point</label>
+                    <label class="form-label"><?= t_admin('admin.users.point') ?></label>
                     <input type="number" name="point" class="form-control" value="0">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Level (1-10)</label>
+                    <label class="form-label"><?= t_admin('admin.users.level') ?></label>
                     <select name="level" class="form-select">
                         <?php for($i=1; $i<=10; $i++): ?>
-                            <option value="<?= $i ?>" <?= $i === 1 ? 'selected' : '' ?>>Level <?= $i ?> <?= $i === 10 ? '(Super Admin)' : '' ?></option>
+                            <option value="<?= $i ?>" <?= $i === 1 ? 'selected' : '' ?>><?= t_admin('admin.cfg.level_prefix') ?> <?= $i ?> <?= $i === 10 ? t_admin('admin.users.super_admin') : '' ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>
             </div>
             <div style="display: flex; gap: 1rem;">
-                <button type="submit" class="btn btn-primary">Create Member</button>
-                <button type="button" class="btn btn-cancel-light" onclick="$('#createUserForm').slideUp()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><?= t_admin('admin.users.create_btn') ?></button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#createUserForm').slideUp()"><?= t_admin('admin.common.cancel') ?></button>
             </div>
         </form>
     </div>
 
     <div id="editUserForm" class="glass-card" style="display: none; background: #f8fafc; margin-bottom: 2rem;">
-        <h2 id="editFormTitle" style="margin-bottom: 1.5rem;">Edit Member</h2>
+        <h2 id="editFormTitle" style="margin-bottom: 1.5rem;"><?= t_admin('admin.users.edit_title') ?></h2>
         <form action="/admin/users/update" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             <input type="hidden" name="id" id="edit-id">
             <div class="admin-grid" style="margin-bottom: 1.5rem;">
                 <div class="form-group">
-                    <label class="form-label">User ID</label>
+                    <label class="form-label"><?= t_admin('admin.users.user_id') ?></label>
                     <input type="text" name="user_id" id="edit-userid" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Username</label>
+                    <label class="form-label"><?= t_admin('admin.users.username') ?></label>
                     <input type="text" name="username" id="edit-username" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email</label>
+                    <label class="form-label"><?= t_admin('admin.users.email') ?></label>
                     <input type="email" name="email" id="edit-email" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Role</label>
+                    <label class="form-label"><?= t_admin('admin.users.role') ?></label>
                     <select name="role" id="edit-role" class="form-select">
-                        <option value="user">USER</option>
-                        <option value="admin">ADMIN</option>
+                        <option value="user"><?= t_admin('admin.users.role_user') ?></option>
+                        <option value="admin"><?= t_admin('admin.users.role_admin') ?></option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">New Password (leave blank to keep current)</label>
-                    <input type="password" name="password" class="form-control" placeholder="Optional">
+                    <label class="form-label"><?= t_admin('admin.users.new_password') ?></label>
+                    <input type="password" name="password" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Country</label>
+                    <label class="form-label"><?= t_admin('admin.users.country') ?></label>
                     <input type="text" name="country" id="edit-country" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Point</label>
+                    <label class="form-label"><?= t_admin('admin.users.point') ?></label>
                     <input type="number" name="point" id="edit-point" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Level (1-10)</label>
+                    <label class="form-label"><?= t_admin('admin.users.level') ?></label>
                     <select name="level" id="edit-level" class="form-select">
                         <?php for($i=1; $i<=10; $i++): ?>
-                            <option value="<?= $i ?>">Level <?= $i ?> <?= $i === 10 ? '(Super Admin)' : '' ?></option>
+                            <option value="<?= $i ?>"><?= t_admin('admin.cfg.level_prefix') ?> <?= $i ?> <?= $i === 10 ? t_admin('admin.users.super_admin') : '' ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>
             </div>
             <div style="display: flex; gap: 1rem;">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn btn-cancel-light" onclick="$('#editUserForm').slideUp()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><?= t_admin('admin.common.save_changes') ?></button>
+                <button type="button" class="btn btn-cancel-light" onclick="$('#editUserForm').slideUp()"><?= t_admin('admin.common.cancel') ?></button>
             </div>
         </form>
     </div>
@@ -117,14 +117,14 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Point/Level</th>
-                    <th>Country</th>
-                    <th>Joined At</th>
-                    <th>Actions</th>
+                    <th><?= t_admin('admin.users.user_id') ?></th>
+                    <th><?= t_admin('admin.users.username') ?></th>
+                    <th><?= t_admin('admin.users.email') ?></th>
+                    <th><?= t_admin('admin.users.role') ?></th>
+                    <th><?= t_admin('admin.users.point_level') ?></th>
+                    <th><?= t_admin('admin.users.country') ?></th>
+                    <th><?= t_admin('admin.users.joined_at') ?></th>
+                    <th><?= t_admin('admin.common.actions') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -156,11 +156,11 @@
                         <td class="text-muted-small"><?= $user['created_at'] ?></td>
                         <td>
                             <div style="display: flex; gap: 1rem; justify-content: center;">
-                                <button onclick='editUser(<?= json_encode($user) ?>)' style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem;">Edit</button>
-                                <form action="/admin/users/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')" style="display: inline;">
+                                <button onclick='editUser(<?= json_encode($user) ?>)' style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem;"><?= t_admin('admin.common.edit') ?></button>
+                                <form action="/admin/users/delete" method="POST" onsubmit="return confirm(<?= htmlspecialchars(json_encode(t_admin('admin.users.delete_confirm')), ENT_QUOTES) ?>)" style="display: inline;">
                                     <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                     <input type="hidden" name="id" value="<?= $user['id'] ?>">
-                                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem;">Delete</button>
+                                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem;"><?= t_admin('admin.common.delete') ?></button>
                                 </form>
                             </div>
                         </td>

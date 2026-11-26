@@ -86,11 +86,14 @@ class AdminController extends BaseController {
         if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
 
         $db = Database::getInstance();
-        
+        $this->ensureLangColumns($db);
         $logoType = $_POST['logo_type'] ?? 'text';
         $logoText = $_POST['logo_text'] ?? '';
         $logoImage = $_POST['current_logo_image'] ?? '';
         $template = $_POST['template'] ?? 'basic';
+        $supported = function_exists('cm_supported_langs') ? cm_supported_langs() : ['ko' => 1, 'en' => 1, 'ja' => 1, 'zh' => 1];
+        $siteLang = isset($supported[$_POST['site_lang'] ?? '']) ? $_POST['site_lang'] : 'ko';
+        $adminLang = isset($supported[$_POST['admin_lang'] ?? '']) ? $_POST['admin_lang'] : 'ko';
 
         // Handle Logo Image Upload
         if ($logoType === 'image' && isset($_FILES['logo_image']) && $_FILES['logo_image']['error'] === UPLOAD_ERR_OK) {
@@ -125,6 +128,8 @@ class AdminController extends BaseController {
             logo_text = :logo_text,
             logo_image = :logo_image,
             template = :template,
+            site_lang = :site_lang,
+            admin_lang = :admin_lang,
             join_point = :join_point,
             join_level = :join_level
             WHERE id = 1");
@@ -141,11 +146,32 @@ class AdminController extends BaseController {
             'logo_text' => $logoText,
             'logo_image' => $logoImage,
             'template' => $template,
+            'site_lang' => $siteLang,
+            'admin_lang' => $adminLang,
             'join_point' => $_POST['join_point'] ?? 0,
             'join_level' => $_POST['join_level'] ?? 1
         ]);
 
+        $_SESSION['site_lang'] = $siteLang;
+        $_SESSION['admin_lang'] = $adminLang;
+
         $this->redirect('/admin/config');
+    }
+
+    private function ensureLangColumns($db) {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        try {
+            $col = $db->query("SHOW COLUMNS FROM config LIKE 'site_lang'")->fetch();
+            if (!$col) {
+                $db->exec("ALTER TABLE config
+                    ADD COLUMN site_lang VARCHAR(10) NOT NULL DEFAULT 'ko' AFTER template,
+                    ADD COLUMN admin_lang VARCHAR(10) NOT NULL DEFAULT 'ko' AFTER site_lang");
+            }
+        } catch (\Throwable $e) {
+            // Ignore if already exists
+        }
     }
 
     public function uploadImage() {

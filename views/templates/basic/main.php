@@ -17,18 +17,18 @@ foreach ($groups as $g) {
     <!-- 히어로 -->
     <section class="simple-hero">
         <div class="simple-hero-text">
-            <span class="simple-hero-badge">누구나 무료로 쓰는 배포형 게시판</span>
-            <h2>다운로드 한 번으로,<br>우리 커뮤니티 완성.</h2>
-            <p>오픈소스 PHP 게시판 솔루션입니다.</p>
+            <span class="simple-hero-badge"><?= t('front.hero.badge') ?></span>
+            <h2><?= t('front.hero.title') ?></h2>
+            <p><?= t('front.hero.desc') ?></p>
             <div class="simple-hero-btns">
                 <?php if ($freeSlug): ?>
-                    <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary">글 쓰러 가기</a>
+                    <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary"><?= t('front.hero.go_write') ?></a>
                 <?php endif; ?>
-                <a href="<?= $gallerySlug ? '/board/gallery' : '/faq' ?>" class="simple-btn-ghost"><?= $gallerySlug ? '갤러리 보기' : '자주 묻는 질문' ?></a>
+                <a href="<?= $gallerySlug ? '/board/gallery' : '/faq' ?>" class="simple-btn-ghost"><?= $gallerySlug ? t('front.hero.view_gallery') : t('front.hero.view_faq') ?></a>
             </div>
             <div class="simple-hero-tags">
-                <span>그룹 <?= number_format(count($groups)) ?></span>
-                <span>게시판 <?= number_format($boardCount) ?></span>
+                <span><?= t('front.hero.groups') ?> <?= number_format(count($groups)) ?></span>
+                <span><?= t('front.hero.boards') ?> <?= number_format($boardCount) ?></span>
             </div>
         </div>
         <div class="simple-hero-side">
@@ -38,31 +38,31 @@ foreach ($groups as $g) {
                         <i class="fa-solid fa-circle-user"></i>
                         <div>
                             <strong><?= htmlspecialchars($user['username']) ?></strong>
-                            <span><?= $is_super ? 'Super Admin' : ($is_admin ? 'Administrator' : 'Member') ?></span>
+                            <span><?= $is_super ? t('admin.role.super') : ($is_admin ? t('admin.role.admin') : t('admin.role.user')) ?></span>
                         </div>
                     </div>
                     <div class="simple-welcome-links">
                         <?php if ($freeSlug): ?>
-                            <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary simple-btn-sm">글쓰기</a>
+                            <a href="/board/<?= htmlspecialchars($freeSlug) ?>" class="simple-btn-primary simple-btn-sm"><?= t('front.hero.write') ?></a>
                         <?php endif; ?>
-                        <a href="/mypage" class="simple-btn-ghost simple-btn-sm">마이페이지</a>
+                        <a href="/mypage" class="simple-btn-ghost simple-btn-sm"><?= t('front.hero.mypage') ?></a>
                         <?php if ($is_admin): ?>
-                            <a href="/admin" class="simple-btn-ghost simple-btn-sm">관리자</a>
+                            <a href="/admin" class="simple-btn-ghost simple-btn-sm"><?= t('front.admin') ?></a>
                         <?php endif; ?>
                     </div>
-                    <a href="/logout" class="simple-logout-link">로그아웃</a>
+                    <a href="/logout" class="simple-logout-link"><?= t('front.logout') ?></a>
                 </div>
             <?php else: ?>
                 <form class="simple-login-box" action="/login" method="POST">
-                    <h4>로그인</h4>
-                    <p>간편하게 로그인하고 소통해 보세요.</p>
+                    <h4><?= t('front.login') ?></h4>
+                    <p><?= t('front.hero.login_desc') ?></p>
                     <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                    <label class="sound-only" for="hero_user_id" style="display:none;">아이디</label>
-                    <input type="text" id="hero_user_id" name="user_id" placeholder="아이디" required autocomplete="username">
-                    <label class="sound-only" for="hero_pw" style="display:none;">비밀번호</label>
-                    <input type="password" id="hero_pw" name="password" placeholder="비밀번호" required autocomplete="current-password">
-                    <button type="submit">로그인</button>
-                    <a href="/register" class="simple-join-link">아직 회원이 아니세요? 회원가입</a>
+                    <label class="sound-only" for="hero_user_id" style="display:none;"><?= t('front.hero.user_id') ?></label>
+                    <input type="text" id="hero_user_id" name="user_id" placeholder="<?= htmlspecialchars(t('front.hero.user_id')) ?>" required autocomplete="username">
+                    <label class="sound-only" for="hero_pw" style="display:none;"><?= t('front.hero.password') ?></label>
+                    <input type="password" id="hero_pw" name="password" placeholder="<?= htmlspecialchars(t('front.hero.password')) ?>" required autocomplete="current-password">
+                    <button type="submit"><?= t('front.login') ?></button>
+                    <a href="/register" class="simple-join-link"><?= t('front.hero.no_account') ?></a>
                 </form>
             <?php endif; ?>
         </div>
@@ -89,7 +89,7 @@ foreach ($groups as $g) {
 
             <?php if (empty($groups)): ?>
                 <div class="simple-card simple-aside-card" style="text-align: center;">
-                    관리자로 로그인해 그룹과 게시판을 만들어 주세요.
+                    <?= t('front.aside.empty') ?>
                 </div>
             <?php endif; ?>
         </aside>
@@ -98,7 +98,7 @@ foreach ($groups as $g) {
             <!-- 최신글 -->
             <section class="simple-section">
                 <div class="simple-section-head">
-                    <h3>최신 글</h3>
+                    <h3><?= t('front.latest.posts') ?></h3>
                 </div>
                 <?php
                     $board_slug = 'free';
@@ -110,8 +110,8 @@ foreach ($groups as $g) {
             <!-- 갤러리 -->
             <section class="simple-section">
                 <div class="simple-section-head">
-                    <h3>갤러리</h3>
-                    <a href="/board/gallery" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                    <h3><?= t('front.latest.gallery') ?></h3>
+                    <a href="/board/gallery" class="simple-more"><?= t('front.latest.more') ?> <i class="fa fa-angle-right" aria-hidden="true"></i></a>
                 </div>
                 <?php
                     $board_slug = 'gallery';
@@ -123,8 +123,8 @@ foreach ($groups as $g) {
             <!-- 블로그 -->
             <section class="simple-section">
                 <div class="simple-section-head">
-                    <h3>블로그</h3>
-                    <a href="/board/blog" class="simple-more">더 보기 <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                    <h3>Blog</h3>
+                    <a href="/board/blog" class="simple-more"><?= t('front.latest.more') ?> <i class="fa fa-angle-right" aria-hidden="true"></i></a>
                 </div>
                 <?php
                     $board_slug = 'blog';

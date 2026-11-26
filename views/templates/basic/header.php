@@ -17,20 +17,28 @@ foreach ($groups as $gr) {
 }
 $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 ?>
+<?php $siteLang = cm_current_lang('site', $siteConfig ?? null); $supportedLangs = cm_supported_langs(); ?>
 <header id="simple-hd">
     <!-- Utility topbar -->
     <div class="simple-topbar">
         <div class="simple-inner">
-            <span class="simple-welcome"><?= htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE') ?>에 오신 것을 환영합니다</span>
+            <span class="simple-welcome"><?= t('front.welcome', ['site' => htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE')]) ?></span>
             <ul class="simple-topbar-right">
-                <li><a href="/faq">FAQ</a></li>
+                <li>
+                    <select onchange="location.href='/lang/site/' + this.value" aria-label="Language" style="background:transparent;border:1px solid rgba(148,163,184,0.4);border-radius:6px;padding:1px 6px;font-size:12px;color:inherit;cursor:pointer;">
+                        <?php foreach ($supportedLangs as $code => $label): ?>
+                            <option value="<?= $code ?>" <?= $siteLang === $code ? 'selected' : '' ?> style="color:#111;"><?= htmlspecialchars($label) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </li>
+                <li><a href="/faq"><?= t('front.faq') ?></a></li>
                 <?php if ($is_member): ?>
-                    <?php if ($is_admin): ?><li><a href="/admin" class="simple-admin">관리자</a></li><?php endif; ?>
-                    <li><a href="/mypage">정보수정</a></li>
-                    <li><a href="/logout">로그아웃</a></li>
+                    <?php if ($is_admin): ?><li><a href="/admin" class="simple-admin"><?= t('front.admin') ?></a></li><?php endif; ?>
+                    <li><a href="/mypage"><?= t('front.edit_profile') ?></a></li>
+                    <li><a href="/logout"><?= t('front.logout') ?></a></li>
                 <?php else: ?>
-                    <li><a href="/register">회원가입</a></li>
-                    <li><a href="/login" class="simple-login-link">로그인</a></li>
+                    <li><a href="/register"><?= t('front.register') ?></a></li>
+                    <li><a href="/login" class="simple-login-link"><?= t('front.login') ?></a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -53,16 +61,16 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
             <div class="simple-header-links">
                 <?php if ($is_member): ?>
                     <button type="button" class="simple-btn-contact" data-bs-toggle="modal" data-bs-target="#contactModal">
-                        <i class="fa-solid fa-paper-plane"></i> 문의하기
+                        <i class="fa-solid fa-paper-plane"></i> <?= t('front.contact') ?>
                     </button>
                     <a href="/mypage" class="simple-user-chip">
                         <i class="fa-solid fa-circle-user"></i> <?= htmlspecialchars($user['username']) ?>
                     </a>
                 <?php else: ?>
-                    <a href="/login" class="simple-btn-login">로그인</a>
-                    <a href="/register" class="simple-btn-join">회원가입</a>
+                    <a href="/login" class="simple-btn-login"><?= t('front.login') ?></a>
+                    <a href="/register" class="simple-btn-join"><?= t('front.register') ?></a>
                     <button type="button" class="simple-btn-contact" data-bs-toggle="modal" data-bs-target="#contactModal">
-                        <i class="fa-solid fa-paper-plane"></i> 문의하기
+                        <i class="fa-solid fa-paper-plane"></i> <?= t('front.contact') ?>
                     </button>
                 <?php endif; ?>
             </div>
@@ -91,7 +99,7 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
 <!-- Offcanvas Mobile Menu -->
 <div class="offcanvas offcanvas-end simple-offcanvas" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="mobileMenuLabel">MENU</h5>
+        <h5 class="offcanvas-title" id="mobileMenuLabel"><?= t('front.menu') ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -101,25 +109,25 @@ $logoChar = mb_substr($siteConfig['site_name'] ?? 'C', 0, 1, 'UTF-8');
                     <i class="fa-solid fa-circle-user"></i>
                     <div>
                         <div class="simple-mobile-name"><?= htmlspecialchars($user['username']) ?></div>
-                        <div class="simple-mobile-role"><?= $is_super ? 'Super Admin' : ($is_admin ? 'Administrator' : 'Member') ?></div>
+                        <div class="simple-mobile-role"><?= $is_super ? t('admin.role.super') : ($is_admin ? t('admin.role.admin') : t('admin.role.user')) ?></div>
                     </div>
                 </div>
                 <div class="simple-mobile-auth">
-                    <?php if ($is_admin): ?><a href="/admin" class="btn btn-sm btn-primary w-100">Admin</a><?php endif; ?>
-                    <a href="/mypage" class="btn btn-sm btn-secondary w-100">My Page</a>
-                    <a href="/logout" class="btn btn-sm btn-danger w-100">Logout</a>
+                    <?php if ($is_admin): ?><a href="/admin" class="btn btn-sm btn-primary w-100"><?= t('front.admin') ?></a><?php endif; ?>
+                    <a href="/mypage" class="btn btn-sm btn-secondary w-100"><?= t('front.hero.mypage') ?></a>
+                    <a href="/logout" class="btn btn-sm btn-danger w-100"><?= t('front.logout') ?></a>
                 </div>
             <?php else: ?>
                 <div class="simple-mobile-auth">
-                    <a href="/login" class="btn btn-primary w-100">Login</a>
-                    <a href="/register" class="btn btn-secondary w-100">Sign Up</a>
+                    <a href="/login" class="btn btn-primary w-100"><?= t('front.login') ?></a>
+                    <a href="/register" class="btn btn-secondary w-100"><?= t('front.register') ?></a>
                 </div>
             <?php endif; ?>
 
-            <a href="/" class="mobile-nav-item"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="/faq" class="mobile-nav-item"><i class="fa-solid fa-question-circle"></i> FAQ</a>
+            <a href="/" class="mobile-nav-item"><i class="fa-solid fa-house"></i> <?= t('front.home') ?></a>
+            <a href="/faq" class="mobile-nav-item"><i class="fa-solid fa-question-circle"></i> <?= t('front.faq') ?></a>
             <button type="button" class="mobile-nav-item" data-bs-toggle="modal" data-bs-target="#contactModal" data-bs-dismiss="offcanvas" style="width: 100%; background: none; border: none; text-align: left; cursor: pointer; font-family: inherit;">
-                <i class="fa-solid fa-paper-plane"></i> 문의하기
+                <i class="fa-solid fa-paper-plane"></i> <?= t('front.contact') ?>
             </button>
 
             <?php foreach ($groups as $group): ?>

@@ -372,3 +372,91 @@ function get_thumbnail($post, $default = null) {
     
     return $thumbnail ?: $default;
 }
+
+/**
+ * Supported languages for CMAKE v1
+ */
+function cm_supported_langs() {
+    return [
+        'ko' => '한국어',
+        'en' => 'English',
+        'ja' => '日本語',
+        'zh' => '中文',
+    ];
+}
+
+/**
+ * Resolve active language for 'site' or 'admin'
+ */
+function cm_current_lang($scope = null, $siteConfig = null) {
+    $supported = cm_supported_langs();
+    if ($scope === null) {
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $scope = (strpos($uri, '/admin') === 0) ? 'admin' : 'site';
+    }
+    $sessionKey = ($scope === 'admin') ? 'admin_lang' : 'site_lang';
+    if (!empty($_SESSION[$sessionKey]) && isset($supported[$_SESSION[$sessionKey]])) {
+        return $_SESSION[$sessionKey];
+    }
+    if (is_array($siteConfig) && !empty($siteConfig[$sessionKey]) && isset($supported[$siteConfig[$sessionKey]])) {
+        return $siteConfig[$sessionKey];
+    }
+    static $dbConfig = null;
+    if ($dbConfig === null) {
+        try {
+            $db = \App\Core\Database::getInstance();
+            $dbConfig = $db ? ($db->query("SELECT * FROM config WHERE id = 1")->fetch() ?: []) : [];
+        } catch (\Throwable $e) {
+            $dbConfig = [];
+        }
+    }
+    if (!empty($dbConfig[$sessionKey]) && isset($supported[$dbConfig[$sessionKey]])) {
+        return $dbConfig[$sessionKey];
+    }
+    return 'ko';
+}
+
+/**
+ * Load translation dictionary with static cache
+ */
+function cm_load_lang($lang) {
+    static $cache = [];
+    $supported = cm_supported_langs();
+    if (!isset($supported[$lang])) $lang = 'ko';
+    if (isset($cache[$lang])) return $cache[$lang];
+
+    $file = dirname(__DIR__) . "/lang/{$lang}.php";
+    if (file_exists($file)) {
+        $data = require $file;
+        $cache[$lang] = is_array($data) ? $data : [];
+    } else {
+        $cache[$lang] = [];
+    }
+    return $cache[$lang];
+}
+
+/**
+ * Translate key with optional placeholders and scope ('site' | 'admin')
+ */
+function t($key, $params = [], $scope = null) {
+    $lang = cm_current_lang($scope);
+    $dict = cm_load_lang($lang);
+    $text = $dict[$key] ?? null;
+    if ($text === null && $lang !== 'ko') {
+        $koDict = cm_load_lang('ko');
+        $text = $koDict[$key] ?? null;
+    }
+    if ($text === null) {
+        $text = $key;
+    }
+    if (!empty($params) && is_array($params)) {
+        foreach ($params as $k => $v) {
+            $text = str_replace('{' . $k . '}', (string)$v, $text);
+        }
+    }
+    return $text;
+}
+
+function t_admin($key, $params = []) {
+    return t($key, $params, 'admin');
+}

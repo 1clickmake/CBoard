@@ -67,7 +67,7 @@ return function(FastRoute\RouteCollector $r) {
 
     // Board Routes
     $r->addRoute('GET', '/board/{slug}', ['App\Controllers\BoardController', 'index']);
-    $r->addRoute('GET', '/board/view/{id:\d+}', ['App\Controllers\BoardController', 'show']);
+    $r->addRoute(['GET', 'POST'], '/board/view/{id:\d+}', ['App\Controllers\BoardController', 'show']);
     $r->addRoute(['GET', 'POST'], '/board/write/{slug}', ['App\Controllers\BoardController', 'write']);
     $r->addRoute(['GET', 'POST'], '/board/edit/{id:\d+}', ['App\Controllers\BoardController', 'edit']);
     $r->addRoute('POST', '/board/delete/{id:\d+}', ['App\Controllers\BoardController', 'delete']);
@@ -88,6 +88,9 @@ return function(FastRoute\RouteCollector $r) {
 
     // FAQ Route
     $r->addRoute('GET', '/faq', ['App\Controllers\HomeController', 'faq']);
+
+    // Language Switch Route
+    $r->addRoute('GET', '/lang/{scope:site|admin}/{code:ko|en|ja|zh}', ['App\Controllers\HomeController', 'setLang']);
 
     // Frontend Routes
     $r->addRoute('GET', '/', ['App\Controllers\HomeController', 'index']);

@@ -1,9 +1,9 @@
-<?php $title = 'Page Manager'; include CM_LAYOUT_PATH . '/admin_header.php'; ?>
+<?php $title = t_admin('admin.pages.title'); include CM_LAYOUT_PATH . '/admin_header.php'; ?>
 
 <div class="glass-card">
     <div class="admin-header-flex">
-        <h1>Page Manager</h1>
-        <a href="/admin/pages/create" class="btn btn-primary">+ Create New Page</a>
+        <h1><?= t_admin('admin.pages.title') ?></h1>
+        <a href="/admin/pages/create" class="btn btn-primary"><?= t_admin('admin.pages.new') ?></a>
     </div>
 
     <div class="table-responsive">
@@ -11,11 +11,11 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Title</th>
-                    <th>URL Slug</th>
-                    <th>Full URL</th>
-                    <th>Last Updated</th>
-                    <th>Actions</th>
+                    <th><?= t_admin('admin.dash.col.title') ?></th>
+                    <th><?= t_admin('admin.pages.col_slug') ?></th>
+                    <th><?= t_admin('admin.pages.col_url') ?></th>
+                    <th><?= t_admin('admin.pages.col_updated') ?></th>
+                    <th><?= t_admin('admin.common.actions') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,12 +33,12 @@
                     <td>
                         <div style="display: flex; gap: 1rem; justify-content: center;">
                             <a href="/admin/pages/edit/<?= $page['id'] ?>" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                <i class="fa-solid fa-pen-to-square"></i> <?= t_admin('admin.common.edit') ?>
                             </a>
-                            <form action="/admin/pages/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this page?')" style="display: inline;">
+                            <form action="/admin/pages/delete" method="POST" onsubmit="return confirm(<?= htmlspecialchars(json_encode(t_admin('admin.pages.delete_confirm')), ENT_QUOTES) ?>)" style="display: inline;">
                                 <input type="hidden" name="id" value="<?= $page['id'] ?>">
                                 <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem; padding: 0;">
-                                    <i class="fa-solid fa-trash"></i> Delete
+                                    <i class="fa-solid fa-trash"></i> <?= t_admin('admin.common.delete') ?>
                                 </button>
                             </form>
                         </div>
@@ -48,7 +48,7 @@
                 <?php if (empty($pages)): ?>
                 <tr>
                     <td colspan="6" style="padding: 4rem;">
-                        <p class="text-muted-small" style="margin: 0;">No pages created yet.</p>
+                        <p class="text-muted-small" style="margin: 0;"><?= t_admin('admin.pages.empty') ?></p>
                     </td>
                 </tr>
                 <?php endif; ?>

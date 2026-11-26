@@ -1,22 +1,22 @@
-<?php $title = 'Mail Logs'; include_admin_header($title); ?>
+<?php $title = t_admin('admin.mail.logs_title'); include_admin_header($title); ?>
 
 <div class="admin-header-flex">
     <div>
-        <h1 style="margin: 0;">Mail Logs</h1>
-        <p class="text-muted-small" style="margin: 0; margin-bottom: 1.5rem;">History of sent emails.</p>
+        <h1 style="margin: 0;"><?= t_admin('admin.mail.logs_title') ?></h1>
+        <p class="text-muted-small" style="margin: 0; margin-bottom: 1.5rem;"><?= t_admin('admin.mail.logs_sub') ?></p>
         
         <div class="filter-badges mt-3">
-            <a href="/admin/mail/logs" class="btn btn-sm <?= empty($currentFilter) ? 'btn-primary' : 'btn-outline-secondary' ?>">All Logs</a>
-            <a href="/admin/mail/logs?filter=contact" class="btn btn-sm <?= ($currentFilter === 'contact') ? 'btn-primary' : 'btn-outline-secondary' ?>">Contact</a>
-            <a href="/admin/mail/logs?filter=direct" class="btn btn-sm <?= ($currentFilter === 'direct') ? 'btn-primary' : 'btn-outline-secondary' ?>">Direct Emails</a>
-            <a href="/admin/mail/logs?filter=all" class="btn btn-sm <?= ($currentFilter === 'all') ? 'btn-primary' : 'btn-outline-secondary' ?>">All Members</a>
-            <a href="/admin/mail/logs?filter=level" class="btn btn-sm <?= ($currentFilter === 'level') ? 'btn-primary' : 'btn-outline-secondary' ?>">By Level</a>
-            <a href="/admin/mail/logs?filter=ids" class="btn btn-sm <?= ($currentFilter === 'ids') ? 'btn-primary' : 'btn-outline-secondary' ?>">Member IDs</a>
+            <a href="/admin/mail/logs" class="btn btn-sm <?= empty($currentFilter) ? 'btn-primary' : 'btn-outline-secondary' ?>"><?= t_admin('admin.mail.filter_all_logs') ?></a>
+            <a href="/admin/mail/logs?filter=contact" class="btn btn-sm <?= ($currentFilter === 'contact') ? 'btn-primary' : 'btn-outline-secondary' ?>"><?= t_admin('admin.mail.filter_contact') ?></a>
+            <a href="/admin/mail/logs?filter=direct" class="btn btn-sm <?= ($currentFilter === 'direct') ? 'btn-primary' : 'btn-outline-secondary' ?>"><?= t_admin('admin.mail.filter_direct') ?></a>
+            <a href="/admin/mail/logs?filter=all" class="btn btn-sm <?= ($currentFilter === 'all') ? 'btn-primary' : 'btn-outline-secondary' ?>"><?= t_admin('admin.mail.target_all') ?></a>
+            <a href="/admin/mail/logs?filter=level" class="btn btn-sm <?= ($currentFilter === 'level') ? 'btn-primary' : 'btn-outline-secondary' ?>"><?= t_admin('admin.mail.target_level') ?></a>
+            <a href="/admin/mail/logs?filter=ids" class="btn btn-sm <?= ($currentFilter === 'ids') ? 'btn-primary' : 'btn-outline-secondary' ?>"><?= t_admin('admin.mail.target_ids') ?></a>
         </div>
     </div>
 
     <a href="/admin/mail" class="btn btn-secondary">
-        <i class="fa-solid fa-paper-plane"></i> Send Mail
+        <i class="fa-solid fa-paper-plane"></i> <?= t_admin('admin.mail.send_btn') ?>
     </a>
 </div>
 
@@ -27,8 +27,8 @@
         <input type="hidden" name="page" value="<?= $page ?>">
 
         <div style="margin-bottom: 1rem;">
-            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete selected logs?')">
-                <i class="fa-solid fa-trash-can"></i> Bulk Delete
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('선택한 발송 내역을 삭제하시겠습니까?')">
+                <i class="fa-solid fa-trash-can"></i> 선택 삭제
             </button>
         </div>
 
@@ -51,18 +51,18 @@
                     <th style="width: 40px;">
                         <input type="checkbox" id="check-all" class="form-check-input">
                     </th>
-                    <th style="width: 50px;">No.</th>
-                    <th style="width: 150px;">Target</th>
-                    <th>Subject</th>
-                    <th style="width: 100px;">Status</th>
-                    <th style="width: 160px;">Sent At</th>
-                    <th>Error Message</th>
+                    <th style="width: 50px;">번호</th>
+                    <th style="width: 150px;">대상</th>
+                    <th>제목</th>
+                    <th style="width: 100px;">상태</th>
+                    <th style="width: 160px;">발송 일시</th>
+                    <th>오류 메시지</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($logs)): ?>
                     <tr>
-                        <td colspan="7" class="text-center">No logs found.</td>
+                        <td colspan="7" class="text-center">발송 내역이 없습니다.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($logs as $index => $log): ?>
@@ -93,11 +93,11 @@
                             </td>
                             <td>
                                 <?php if ($log['status'] === 'success'): ?>
-                                    <span class="badge badge-success">Success</span>
+                                    <span class="badge badge-success">성공</span>
                                 <?php elseif ($log['status'] === 'partial'): ?>
-                                    <span class="badge badge-warning">Partial</span>
+                                    <span class="badge badge-warning">일부 성공</span>
                                 <?php else: ?>
-                                    <span class="badge badge-danger">Failed</span>
+                                    <span class="badge badge-danger">실패</span>
                                 <?php endif; ?>
                             </td>
                             <td><?= $log['sent_at'] ?></td>
@@ -121,49 +121,49 @@
 <div id="mailDetailModal" class="mail-modal-overlay">
     <div class="glass-card mail-modal-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0"><i class="fa-solid fa-envelope-open-text me-2"></i> Mail Details</h3>
+            <h3 class="mb-0"><i class="fa-solid fa-envelope-open-text me-2"></i> 메일 상세 내용</h3>
             <button onclick="$('#mailDetailModal').fadeOut()" class="btn btn-sm btn-secondary"><i class="fa-solid fa-times"></i></button>
         </div>
 
         <div class="detail-group mb-4">
-            <label class="text-muted-small d-block mb-1">Subject</label>
+            <label class="text-muted-small d-block mb-1">제목</label>
             <div id="detail-subject" class="fw-bold fs-5 p-2 bg-dark-soft rounded"></div>
         </div>
 
         <div class="detail-group mb-4" id="group-recipients">
-            <label class="text-muted-small d-block mb-1">Recipients</label>
+            <label class="text-muted-small d-block mb-1">수신자</label>
             <div id="detail-recipients" class="mail-recipients-box"></div>
         </div>
 
         <div id="contact-info-section" style="display:none; border: 1px dashed rgba(255,255,255,0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; background: rgba(168, 85, 247, 0.05);">
             <div class="row">
                 <div class="col-md-4">
-                    <label class="text-muted-small d-block">Sender Name</label>
+                    <label class="text-muted-small d-block">발신자 이름</label>
                     <div id="detail-sender-name" class="fw-bold"></div>
                 </div>
                 <div class="col-md-4">
-                    <label class="text-muted-small d-block">Sender Email</label>
+                    <label class="text-muted-small d-block">발신자 이메일</label>
                     <div id="detail-sender-email" class="fw-bold"></div>
                 </div>
                 <div class="col-md-4">
-                    <label class="text-muted-small d-block">Phone Number</label>
+                    <label class="text-muted-small d-block">연락처</label>
                     <div id="detail-sender-phone" class="fw-bold"></div>
                 </div>
             </div>
         </div>
 
         <div class="detail-group mb-4">
-            <label class="text-muted-small d-block mb-1">Content</label>
+            <label class="text-muted-small d-block mb-1">내용</label>
             <div id="detail-content" class="mail-content-box"></div>
         </div>
 
         <div class="detail-group mb-2">
-            <label class="text-muted-small d-block mb-1">📎 Attachments</label>
+            <label class="text-muted-small d-block mb-1">📎 첨부파일</label>
             <div id="detail-attachments" class="mail-attachments-box"></div>
         </div>
 
         <div class="text-end mt-4">
-            <button onclick="$('#mailDetailModal').fadeOut()" class="btn btn-secondary px-4">Close</button>
+            <button onclick="$('#mailDetailModal').fadeOut()" class="btn btn-secondary px-4">닫기</button>
         </div>
     </div>
 </div>
@@ -224,7 +224,7 @@
             var attHtml = attList.map(name => '<div class="mb-1"><i class="fa-solid fa-file-arrow-down me-2"></i>' + name + '</div>').join('');
             $('#detail-attachments').html(attHtml);
         } else {
-            $('#detail-attachments').html('<div class="text-muted">No attachments</div>');
+            $('#detail-attachments').html('<div class="text-muted">첨부파일 없음</div>');
         }
 
         $('#mailDetailModal').fadeIn();

@@ -1342,3 +1342,150 @@ option {
 pre, code {
     color: #0f766e;
 }
+
+/* ============================================================
+   Admin Dark Mode (html[data-admin-theme="dark"])
+   ============================================================ */
+html[data-admin-theme="dark"] {
+    --sidebar-bg: #0f172a;
+    --main-bg: #020617;
+    --primary: #14b8a6;
+    --text-muted: #94a3b8;
+    --text-light: #f1f5f9;
+    --nav-item-hover: rgba(20, 184, 166, 0.14);
+    --border-color: rgba(148, 163, 184, 0.18);
+}
+
+html[data-admin-theme="dark"] body.admin-body {
+    background-color: #020617;
+    color: #f1f5f9;
+}
+
+html[data-admin-theme="dark"] .admin-topbar {
+    background-color: #0f172a !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18) !important;
+    color: #f1f5f9;
+}
+
+html[data-admin-theme="dark"] .glass-card,
+html[data-admin-theme="dark"] .tn-panel,
+html[data-admin-theme="dark"] .admin-section-container {
+    background-color: #0f172a !important;
+    border-color: rgba(148, 163, 184, 0.18) !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-admin-theme="dark"] #createUserForm,
+html[data-admin-theme="dark"] #editUserForm,
+html[data-admin-theme="dark"] #createGroupForm,
+html[data-admin-theme="dark"] #editGroupForm,
+html[data-admin-theme="dark"] #createBoardForm,
+html[data-admin-theme="dark"] #editBoardForm,
+html[data-admin-theme="dark"] #createFaqForm,
+html[data-admin-theme="dark"] #editFaqForm,
+html[data-admin-theme="dark"] #categoryConfigForm,
+html[data-admin-theme="dark"] #adjustPointForm,
+html[data-admin-theme="dark"] .faq-answer-row {
+    background: #1e293b !important;
+}
+
+html[data-admin-theme="dark"] .form-control,
+html[data-admin-theme="dark"] .form-select,
+html[data-admin-theme="dark"] textarea.form-control {
+    background-color: #1e293b !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+    color: #f8fafc !important;
+}
+
+html[data-admin-theme="dark"] .form-control::placeholder {
+    color: #94a3b8 !important;
+}
+
+html[data-admin-theme="dark"] .form-label {
+    color: #e2e8f0 !important;
+}
+
+html[data-admin-theme="dark"] .tn-list thead th,
+html[data-admin-theme="dark"] .tn-table thead th {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+html[data-admin-theme="dark"] .tn-list tbody td,
+html[data-admin-theme="dark"] .tn-table tbody td {
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+html[data-admin-theme="dark"] .tn-list tbody tr:nth-child(even) {
+    background-color: rgba(30, 41, 59, 0.45) !important;
+}
+
+html[data-admin-theme="dark"] .tn-list.table-hover tbody tr:hover {
+    background-color: rgba(20, 184, 166, 0.12) !important;
+}
+
+html[data-admin-theme="dark"] .tn-users li {
+    border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+html[data-admin-theme="dark"] .tn-users strong,
+html[data-admin-theme="dark"] .tn-panel-head h3,
+html[data-admin-theme="dark"] h1,
+html[data-admin-theme="dark"] h2,
+html[data-admin-theme="dark"] h3,
+html[data-admin-theme="dark"] h4,
+html[data-admin-theme="dark"] h5 {
+    color: #f8fafc;
+}
+
+html[data-admin-theme="dark"] .btn-cancel-light {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}
+
+html[data-admin-theme="dark"] .selection-card {
+    background-color: #1e293b !important;
+    border-color: rgba(148, 163, 184, 0.25) !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-admin-theme="dark"] .selection-card.active {
+    border-color: #14b8a6 !important;
+    background-color: rgba(20, 184, 166, 0.16) !important;
+}
+
+html[data-admin-theme="dark"] .stat-card {
+    background-color: #1e293b !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+html[data-admin-theme="dark"] .admin-sticky-header {
+    background-color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+html[data-admin-theme="dark"] .admin-lang-select,
+html[data-admin-theme="dark"] .admin-theme-btn {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.admin-lang-select,
+.admin-theme-btn {
+    height: 32px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0 10px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}

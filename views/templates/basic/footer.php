@@ -6,27 +6,27 @@
                     <?= htmlspecialchars(!empty($siteConfig['logo_text']) ? $siteConfig['logo_text'] : ($siteConfig['site_name'] ?? 'CMAKE')) ?>
                 </a>
                 <p class="simple-footer-desc">
-                    <?= htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE') ?> 커뮤니티에 오신 것을 환영합니다.
+                    <?= t('front.footer.desc', ['site' => htmlspecialchars($siteConfig['site_name'] ?? 'CMAKE')]) ?>
                 </p>
             </div>
 
             <div class="simple-footer-nav">
-                <h4>Legal &amp; Info</h4>
+                <h4><?= t('front.footer.legal') ?></h4>
                 <ul>
                     <?php if (!empty($footerPages)): ?>
                         <?php foreach ($footerPages as $fPage): ?>
                             <li><a href="/page/<?= $fPage['slug'] ?>"><?= htmlspecialchars($fPage['title']) ?></a></li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li><a href="/page/about-us">About Us</a></li>
-                        <li><a href="/page/terms-of-service">Terms of Service</a></li>
-                        <li><a href="/page/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="/page/about-us"><?= t('front.footer.about') ?></a></li>
+                        <li><a href="/page/terms-of-service"><?= t('front.footer.terms') ?></a></li>
+                        <li><a href="/page/privacy-policy"><?= t('front.footer.privacy') ?></a></li>
                     <?php endif; ?>
                 </ul>
             </div>
 
             <div class="simple-footer-contact">
-                <h4>Contact Us</h4>
+                <h4><?= t('front.footer.contact') ?></h4>
                 <ul>
                     <?php if (!empty($siteConfig['company_tel'])): ?>
                         <li><i class="fa-solid fa-phone"></i><span><?= htmlspecialchars($siteConfig['company_tel']) ?></span></li>
@@ -38,7 +38,7 @@
                         <li><i class="fa-solid fa-location-dot"></i><span><?= htmlspecialchars($siteConfig['company_address']) ?></span></li>
                     <?php endif; ?>
                     <?php if (empty($siteConfig['company_tel']) && empty($siteConfig['company_email'])): ?>
-                        <li><i class="fa-solid fa-circle-info"></i><span>Please update company info in admin.</span></li>
+                        <li><i class="fa-solid fa-circle-info"></i><span><?= t('front.footer.update_info') ?></span></li>
                     <?php endif; ?>
                 </ul>
                 <?php if (!empty($siteConfig['company_name']) || !empty($siteConfig['company_owner'])): ?>
@@ -62,7 +62,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content simple-contact-modal">
             <div class="modal-header">
-                <h5 class="modal-title" id="contactModalLabel">문의하기</h5>
+                <h5 class="modal-title" id="contactModalLabel"><?= t('front.contact.title') ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

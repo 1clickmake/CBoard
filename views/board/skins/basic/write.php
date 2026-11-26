@@ -1,5 +1,5 @@
 <?php 
-$title = isset($post) ? 'Edit Post' : 'Write Post';
+$title = isset($post) ? t('board.edit_post') : t('board.write_post');
 include_header($title, $siteConfig); 
 ?>
 <?php if (file_exists(CM_BOARD_SKINS_PATH . '/basic/style.css')): ?><style><?php include CM_BOARD_SKINS_PATH . '/basic/style.css'; ?></style><?php endif; ?>
@@ -10,25 +10,25 @@ include_header($title, $siteConfig);
     <div class="glass-card">
         <div class="write-header">
             <h1 class="write-title"><?= $title ?></h1>
-            <p class="write-subtitle">Board: <?= htmlspecialchars($board['title']) ?></p>
+            <p class="write-subtitle"><?= t('board.board_label') ?>: <?= htmlspecialchars($board['title']) ?></p>
         </div>
         
         <form id="writeForm" action="<?= $_SERVER['REQUEST_URI'] ?>" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Title</label>
-                <input type="text" name="title" class="form-control" value="<?= isset($post) ? htmlspecialchars($post['title']) : '' ?>" required placeholder="Enter post title...">
+                <label><?= t('board.title_label') ?></label>
+                <input type="text" name="title" class="form-control" value="<?= isset($post) ? htmlspecialchars($post['title']) : '' ?>" required placeholder="<?= htmlspecialchars(t('board.title_ph')) ?>">
             </div>
             
             <div class="form-group" style="margin-bottom: 1rem;">
                 <div class="editor-mode-container">
-                    <label class="editor-label">Content</label>
+                    <label class="editor-label"><?= t('board.content_label') ?></label>
                     <div class="btn-group mode-switch-group" role="group">
                         <input type="radio" class="btn-check" name="editor_mode" id="mode_visual" value="visual" <?= ($post['editor_mode'] ?? 'visual') === 'visual' ? 'checked' : '' ?> autocomplete="off">
-                        <label class="btn btn-sm btn-mode-label" for="mode_visual">Visual</label>
+                        <label class="btn btn-sm btn-mode-label" for="mode_visual"><?= t('board.mode_visual') ?></label>
 
                         <input type="radio" class="btn-check" name="editor_mode" id="mode_html" value="html" <?= ($post['editor_mode'] ?? 'visual') === 'html' ? 'checked' : '' ?> autocomplete="off">
-                        <label class="btn btn-sm btn-mode-label" for="mode_html">HTML</label>
+                        <label class="btn btn-sm btn-mode-label" for="mode_html"><?= t('board.mode_html') ?></label>
                     </div>
                 </div>
 
@@ -73,9 +73,9 @@ include_header($title, $siteConfig);
             
             <div class="write-actions">
                 <button type="submit" class="btn btn-primary btn-submit">
-                    <?= isset($post) ? '✏️ Update Post' : '📝 Submit Post' ?>
+                    <?= isset($post) ? '✏️ ' . t('board.update_post') : '📝 ' . t('board.submit_post') ?>
                 </button>
-                <a href="/board/<?= $board['slug'] ?>" class="btn btn-cancel">❌ Cancel</a>
+                <a href="/board/<?= $board['slug'] ?>" class="btn btn-cancel">❌ <?= t('board.cancel') ?></a>
             </div>
         </form>
     </div>

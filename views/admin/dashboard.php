@@ -1,4 +1,4 @@
-<?php $title = 'Admin Dashboard'; include_admin_header($title); ?>
+<?php $title = t_admin('admin.dash.title'); include_admin_header($title); ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -9,10 +9,10 @@
     <div class="tn-stats">
         <?php
         $cards = [
-            ['label' => 'Total Members', 'value' => $stats['users'] ?? 0, 'sub' => '누적 회원', 'icon' => 'fa-users', 'link' => '/admin/users', 'linkText' => '관리'],
-            ['label' => 'Total Posts', 'value' => $stats['posts'] ?? 0, 'sub' => '게시판 ' . number_format($stats['boards'] ?? 0) . '개', 'icon' => 'fa-pen-nib', 'link' => '/admin/boards', 'linkText' => '관리'],
-            ['label' => 'Today Visitors', 'value' => $stats['today'] ?? 0, 'sub' => '어제 ' . number_format($stats['yesterday'] ?? 0) . '명', 'icon' => 'fa-chart-line', 'link' => '/admin/visitors', 'linkText' => '통계'],
-            ['label' => 'Total Visitors', 'value' => $stats['total'] ?? 0, 'sub' => '누적 방문', 'icon' => 'fa-globe', 'link' => '/admin/visitors', 'linkText' => '통계'],
+            ['label' => t_admin('admin.dash.total_members'), 'value' => $stats['users'] ?? 0, 'sub' => t_admin('admin.dash.total_members_sub'), 'icon' => 'fa-users', 'link' => '/admin/users', 'linkText' => t_admin('admin.dash.manage')],
+            ['label' => t_admin('admin.dash.total_posts'), 'value' => $stats['posts'] ?? 0, 'sub' => t_admin('admin.dash.boards_count', ['n' => number_format($stats['boards'] ?? 0)]), 'icon' => 'fa-pen-nib', 'link' => '/admin/boards', 'linkText' => t_admin('admin.dash.manage')],
+            ['label' => t_admin('admin.dash.today_visitors'), 'value' => $stats['today'] ?? 0, 'sub' => t_admin('admin.dash.yesterday_visitors', ['n' => number_format($stats['yesterday'] ?? 0)]), 'icon' => 'fa-chart-line', 'link' => '/admin/visitors', 'linkText' => t_admin('admin.dash.stats')],
+            ['label' => t_admin('admin.dash.total_visitors'), 'value' => $stats['total'] ?? 0, 'sub' => t_admin('admin.dash.total_visitors_sub'), 'icon' => 'fa-globe', 'link' => '/admin/visitors', 'linkText' => t_admin('admin.dash.stats')],
         ];
         foreach ($cards as $i => $c):
         ?>
@@ -40,8 +40,8 @@
     <div class="tn-panel">
         <div class="tn-panel-head">
             <div>
-                <h3>Visitors Overview</h3>
-                <p>최근 15일 방문자 추이</p>
+                <h3><?= t_admin('admin.dash.visitors_overview') ?></h3>
+                <p><?= t_admin('admin.dash.visitors_15d') ?></p>
             </div>
         </div>
         <div class="tn-chart-wrap"><canvas id="dashVisitorChart"></canvas></div>
@@ -52,15 +52,15 @@
         <div class="tn-panel">
             <div class="tn-panel-head">
                 <div>
-                    <h3>Recent Posts</h3>
-                    <p>최근 작성된 게시글</p>
+                    <h3><?= t_admin('admin.dash.recent_posts') ?></h3>
+                    <p><?= t_admin('admin.dash.recent_posts_sub') ?></p>
                 </div>
-                <a href="/admin/boards" class="tn-mini-link">Boards <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="/admin/boards" class="tn-mini-link"><?= t_admin('admin.dash.boards_link') ?> <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <div class="table-responsive tn-table-wrap">
                 <table class="tn-table">
                     <thead>
-                        <tr><th>제목</th><th>게시판</th><th>작성자</th><th>날짜</th></tr>
+                        <tr><th><?= t_admin('admin.dash.col.title') ?></th><th><?= t_admin('admin.dash.col.board') ?></th><th><?= t_admin('admin.dash.col.author') ?></th><th><?= t_admin('admin.dash.col.date') ?></th></tr>
                     </thead>
                     <tbody>
                         <?php if (!empty($recentPosts)): ?>
@@ -73,7 +73,7 @@
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="4" class="tn-empty">작성된 게시글이 없습니다.</td></tr>
+                            <tr><td colspan="4" class="tn-empty"><?= t_admin('admin.dash.no_posts') ?></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -83,10 +83,10 @@
         <div class="tn-panel">
             <div class="tn-panel-head">
                 <div>
-                    <h3>New Members</h3>
-                    <p>최근 가입 회원</p>
+                    <h3><?= t_admin('admin.dash.new_members') ?></h3>
+                    <p><?= t_admin('admin.dash.new_members_sub') ?></p>
                 </div>
-                <a href="/admin/users" class="tn-mini-link">Users <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="/admin/users" class="tn-mini-link"><?= t_admin('admin.dash.users_link') ?> <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <ul class="tn-users">
                 <?php if (!empty($recentUsers)): ?>
@@ -101,7 +101,7 @@
                         </li>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <li class="tn-empty">가입 회원이 없습니다.</li>
+                    <li class="tn-empty"><?= t_admin('admin.dash.no_members') ?></li>
                 <?php endif; ?>
             </ul>
         </div>

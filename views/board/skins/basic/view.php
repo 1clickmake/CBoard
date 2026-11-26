@@ -8,17 +8,17 @@
             <h1 class="post-view-title"><?= htmlspecialchars($post['title']) ?></h1>
             <div class="post-meta-container">
                 <div class="post-meta-left">
-                    <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($post['username']) ?></span>
+                    <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($post['username'] ?? '') ?></span>
                     <span><i class="fa-solid fa-clock"></i> <?= date('Y-m-d H:i', strtotime($post['created_at'])) ?></span>
-                    <span><i class="fa-solid fa-eye"></i> Views: <?= $post['views'] ?></span>
+                    <span><i class="fa-solid fa-eye"></i> <?= t('board.col.views') ?>: <?= $post['views'] ?></span>
                 </div>
                 <div class="post-actions">
-                    <a href="/board/<?= $post['board_slug'] ?>" class="btn btn-list">📋 List</a>
+                    <a href="/board/<?= $post['board_slug'] ?>" class="btn btn-list">📋 <?= t('board.list') ?></a>
                     <?php if ($is_member && ($user['id'] == $post['user_id'] || $is_admin)): ?>
-                        <a href="/board/edit/<?= $post['id'] ?>" class="btn btn-edit">✏️ Edit</a>
-                        <form action="/board/delete/<?= $post['id'] ?>" method="POST" onsubmit="return confirm('Delete this post?')" class="delete-form">
+                        <a href="/board/edit/<?= $post['id'] ?>" class="btn btn-edit">✏️ <?= t('board.edit') ?></a>
+                        <form action="/board/delete/<?= $post['id'] ?>" method="POST" onsubmit="return confirm(<?= htmlspecialchars(json_encode(t('board.delete_confirm')), ENT_QUOTES) ?>)" class="delete-form">
                             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                            <button type="submit" class="btn btn-delete">🗑️ Delete</button>
+                            <button type="submit" class="btn btn-delete">🗑️ <?= t('board.delete') ?></button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -48,7 +48,7 @@
         <!-- Attached Files -->
         <?php if (!empty($files)): ?>
         <div class="attached-files-area">
-            <h4 class="attached-label">📎 Attached Files</h4>
+            <h4 class="attached-label">📎 <?= t('board.attachments') ?></h4>
             <?php foreach ($files as $file): ?>
                 <div class="file-download-item">
                     <span class="file-info-text"><?= htmlspecialchars($file['original_name']) ?> (<?= number_format($file['file_size'] / 1024, 1) ?> KB)</span>
@@ -63,17 +63,17 @@
     <!-- Comments (댓글) Section -->
     <?php if ($post['allow_comments']): ?>
     <div class="glass-card">
-        <h3 class="comments-header">💬 Comments</h3>
+        <h3 class="comments-header">💬 <?= t('board.comments') ?></h3>
         
         <!-- Comment Write Form -->
         <?php if ($is_member): ?>
         <div class="comment-write-box">
-            <textarea id="comment-input" class="form-control comment-textarea" rows="3" placeholder="Write a comment..."></textarea>
-            <button onclick="addComment()" class="btn btn-primary">Add Comment</button>
+            <textarea id="comment-input" class="form-control comment-textarea" rows="3" placeholder="<?= htmlspecialchars(t('board.comment_ph')) ?>"></textarea>
+            <button onclick="addComment()" class="btn btn-primary"><?= t('board.comment_submit') ?></button>
         </div>
         <?php else: ?>
         <div class="login-request-box">
-            <a href="/login" class="login-link">Login</a> to leave a comment.
+            <?= t('board.login_to_comment') ?> (<a href="/login" class="login-link"><?= t('front.login') ?></a>)
         </div>
         <?php endif; ?>
 

@@ -53,9 +53,10 @@ class BoardController extends BaseController {
         $sql = "SELECT p.*, u.username, 
                 (SELECT COUNT(*) FROM posts WHERE parent_id = p.id) as reply_count,
                 (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comment_count,
+                (SELECT COUNT(*) FROM post_files WHERE post_id = p.id) as file_count,
                 (SELECT filepath FROM post_files WHERE post_id = p.id AND file_type LIKE 'image/%' LIMIT 1) as first_file
                 FROM posts p 
-                JOIN users u ON p.user_id = u.user_id 
+                LEFT JOIN users u ON p.user_id = u.user_id 
                 WHERE p.board_id = :board_id AND p.reply_depth = 0" . $searchWhere . "
                 ORDER BY p.created_at DESC 
                 LIMIT :limit OFFSET :offset";
@@ -89,9 +90,9 @@ class BoardController extends BaseController {
         $db = Database::getInstance();
         
         $stmt = $db->prepare("SELECT p.*, u.username, b.title as board_title, b.slug as board_slug, 
-                              b.skin, b.max_replies, b.allow_comments, b.level_view, b.point_view
+                              b.skin, b.max_replies, b.allow_comments, b.level_view, b.level_comment, b.point_view
                               FROM posts p 
-                              JOIN users u ON p.user_id = u.user_id 
+                              LEFT JOIN users u ON p.user_id = u.user_id 
                               JOIN boards b ON p.board_id = b.id 
                               WHERE p.id = :id");
         $stmt->execute(['id' => $id]);
@@ -106,10 +107,44 @@ class BoardController extends BaseController {
             alert('You do not have permission to view this post.');
         }
 
-        // Apply View Points (only if logged in and not the author/admin)
         $is_member = \App\Services\AuthService::isMember();
         $user = \App\Services\AuthService::user();
         $is_admin = \App\Services\AuthService::isAdmin();
+
+        // Secret post verification
+        if (!empty($post['is_secret'])) {
+            $canViewSecret = $is_admin
+                || ($is_member && !empty($user['user_id']) && $user['user_id'] === $post['user_id'])
+                || !empty($_SESSION['unlocked_posts'][(int)$id]);
+
+            if (!$canViewSecret && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!Csrf::verify($_POST['csrf_token'] ?? '')) {
+                    $this->deny('Invalid security token. Please try again.');
+                }
+                $inputPw = $_POST['secret_password'] ?? '';
+                if (!empty($post['secret_password']) && password_verify($inputPw, $post['secret_password'])) {
+                    $_SESSION['unlocked_posts'][(int)$id] = true;
+                    $canViewSecret = true;
+                } else {
+                    $secretError = '비밀번호가 일치하지 않습니다.';
+                }
+            }
+
+            if (!$canViewSecret) {
+                $skin = $post['skin'] ?? 'basic';
+                $secretView = "board/skins/{$skin}/secret";
+                if (!file_exists(__DIR__ . "/../../views/{$secretView}.php")) {
+                    $secretView = "board/skins/sebyeol_contact/secret";
+                }
+                $this->view($secretView, [
+                    'post' => $post,
+                    'secretError' => $secretError ?? null
+                ]);
+                return;
+            }
+        }
+
+        // Apply View Points (only if logged in and not the author/admin)
         if ($is_member && !$is_admin && $user['user_id'] !== $post['user_id']) {
             $viewPoint = (int)($post['point_view'] ?? 0);
             if ($viewPoint != 0) {
@@ -157,7 +192,7 @@ class BoardController extends BaseController {
         $totalCommentPages = ceil($totalComments / $commentLimit);
         
         // Get parent comments
-        $stmt = $db->prepare("SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.post_id = :post_id AND c.reply_depth = 0 ORDER BY c.created_at DESC LIMIT :limit OFFSET :offset");
+        $stmt = $db->prepare("SELECT c.*, u.username FROM comments c LEFT JOIN users u ON c.user_id = u.user_id WHERE c.post_id = :post_id AND c.reply_depth = 0 ORDER BY c.created_at DESC LIMIT :limit OFFSET :offset");
         $stmt->bindParam(':post_id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':limit', $commentLimit, PDO::PARAM_INT);
         $stmt->bindParam(':offset', $commentOffset, PDO::PARAM_INT);
@@ -166,7 +201,7 @@ class BoardController extends BaseController {
         
         // For each comment, get sub-comments (대댓글)
         foreach ($comments as &$comment) {
-            $stmt = $db->prepare("SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.user_id WHERE c.parent_comment_id = :parent_id ORDER BY c.created_at ASC");
+            $stmt = $db->prepare("SELECT c.*, u.username FROM comments c LEFT JOIN users u ON c.user_id = u.user_id WHERE c.parent_comment_id = :parent_id ORDER BY c.created_at ASC");
             $stmt->execute(['parent_id' => $comment['id']]);
             $comment['sub_comments'] = $stmt->fetchAll();
         }
@@ -190,10 +225,6 @@ class BoardController extends BaseController {
 
     public function write($vars) {
         $is_member = \App\Services\AuthService::isMember();
-        if (!$is_member) {
-            $this->redirect('/login');
-        }
-
         $slug = $vars['slug'];
         $db = Database::getInstance();
         
@@ -201,10 +232,22 @@ class BoardController extends BaseController {
         $stmt->execute(['slug' => $slug]);
         $board = $stmt->fetch();
 
-        // Permission Check: Write
+        if (!$board) {
+            $this->notFound('Board not found.');
+            return;
+        }
+
+        // Permission Check: Write (allow guest when level_write <= 1)
+        if (!$is_member && (int)($board['level_write'] ?? 1) > 1) {
+            $this->redirect('/login');
+        }
         if (!check_level($board['level_write'] ?? 1)) {
             alert('You do not have permission to write here.');
         }
+
+        $this->ensurePostExtraColumns($db);
+        $skin = $board['skin'] ?? 'basic';
+        $viewPath = "board/skins/{$skin}/write";
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
@@ -212,25 +255,69 @@ class BoardController extends BaseController {
             $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $editor_mode = $_POST['editor_mode'] ?? 'visual';
-            
+            $authorName = mb_substr(trim($_POST['author_name'] ?? ''), 0, 80);
+            $isSecret = !empty($_POST['is_secret']) ? 1 : 0;
+            $email = mb_substr(trim($_POST['email'] ?? ''), 0, 150);
+            $phone = mb_substr(trim($_POST['phone'] ?? ''), 0, 50);
+            $pw = $_POST['password'] ?? '';
+            $pwConfirm = $_POST['password_confirm'] ?? '';
+
+            $error = null;
+            if ($skin === 'sebyeol_contact') {
+                if (isset($_POST['captcha_answer']) && !\App\Core\Captcha::verify($_POST['captcha_answer'])) {
+                    $error = '스팸방지 코드(Security Code)가 올바르지 않습니다.';
+                } elseif (($pw !== '' || $pwConfirm !== '' || $isSecret) && $pw !== $pwConfirm) {
+                    $error = '비밀번호와 비밀번호 확인이 일치하지 않습니다.';
+                } elseif (!$is_member && $pw === '') {
+                    $error = '비밀번호를 입력해 주세요.';
+                }
+            }
+
+            if ($error !== null) {
+                $this->view($viewPath, [
+                    'board' => $board,
+                    'error' => $error,
+                    'captcha_q' => \App\Core\Captcha::generate(),
+                    'old' => [
+                        'author_name' => $authorName,
+                        'is_secret' => $isSecret,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'title' => $title,
+                        'content' => $_POST['content'] ?? ''
+                    ]
+                ]);
+                return;
+            }
+
+            $secretPassword = $pw !== '' ? password_hash($pw, PASSWORD_DEFAULT) : '';
             $user = \App\Services\AuthService::user();
-            $stmt = $db->prepare("INSERT INTO posts (group_id, board_id, user_id, title, content, editor_mode) VALUES (:group_id, :board_id, :user_id, :title, :content, :editor_mode)");
+            $authorId = ($is_member && !empty($user['user_id'])) ? $user['user_id'] : 'guest';
+            $stmt = $db->prepare("INSERT INTO posts (group_id, board_id, user_id, author_name, title, content, editor_mode, is_secret, secret_password, email, phone) VALUES (:group_id, :board_id, :user_id, :author_name, :title, :content, :editor_mode, :is_secret, :secret_password, :email, :phone)");
             $stmt->execute([
                 'group_id' => $board['group_id'],
                 'board_id' => $board['id'],
-                'user_id' => $user['user_id'],
+                'user_id' => $authorId,
+                'author_name' => $authorName,
                 'title' => $title,
                 'content' => $content,
-                'editor_mode' => $editor_mode
+                'editor_mode' => $editor_mode,
+                'is_secret' => $isSecret,
+                'secret_password' => $secretPassword,
+                'email' => $email,
+                'phone' => $phone
             ]);
             $postId = $db->lastInsertId();
             
             // Backup logic for hosting environments where lastInsertId might fail
             if ($postId <= 0) {
-                 $user = \App\Services\AuthService::user();
                  $stmt = $db->prepare("SELECT id FROM posts WHERE user_id = :user_id ORDER BY id DESC LIMIT 1");
-                 $stmt->execute(['user_id' => $user['user_id']]);
+                 $stmt->execute(['user_id' => $authorId]);
                  $postId = (int)$stmt->fetchColumn();
+            }
+
+            if ($isSecret && $postId > 0) {
+                $_SESSION['unlocked_posts'][(int)$postId] = true;
             }
 
             // Handle file uploads
@@ -239,39 +326,92 @@ class BoardController extends BaseController {
                 $fileService->handleUploads($postId, $slug, $_FILES['attachments']);
             }
             
-            // Add points for posting
+            // Add points for posting (members only)
             $writePoint = (int)($board['point_write'] ?? 0);
-            if ($writePoint != 0) {
-                $user = \App\Services\AuthService::user();
+            if ($is_member && $writePoint != 0 && !empty($user['user_id'])) {
                 add_point($user['user_id'], $writePoint, 'Post Write: ' . $title);
-                $_SESSION['user']['point'] += $writePoint; // Update session
-
+                $_SESSION['user']['point'] = ($_SESSION['user']['point'] ?? 0) + $writePoint;
             }
             
             $this->redirect('/board/view/' . $postId);
             return;
         }
 
-        // Load skin-specific write view
-        $skin = $board['skin'] ?? 'basic';
-        $viewPath = "board/skins/{$skin}/write";
-        
-        $this->view($viewPath, ['board' => $board]);
+        $this->view($viewPath, [
+            'board' => $board,
+            'captcha_q' => \App\Core\Captcha::generate()
+        ]);
+    }
+
+    private function ensurePostExtraColumns($db) {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        try {
+            $col = $db->query("SHOW COLUMNS FROM posts LIKE 'is_secret'")->fetch();
+            if (!$col) {
+                $db->exec("ALTER TABLE posts
+                    ADD COLUMN author_name VARCHAR(80) NOT NULL DEFAULT '' AFTER user_id,
+                    ADD COLUMN is_secret TINYINT(1) NOT NULL DEFAULT 0 AFTER editor_mode,
+                    ADD COLUMN secret_password VARCHAR(255) NOT NULL DEFAULT '' AFTER is_secret,
+                    ADD COLUMN email VARCHAR(150) NOT NULL DEFAULT '' AFTER secret_password,
+                    ADD COLUMN phone VARCHAR(50) NOT NULL DEFAULT '' AFTER email");
+            }
+        } catch (\Throwable $e) {
+            // Ignore if already exists or lacking privilege
+        }
     }
 
     public function edit($vars) {
         $id = $vars['id'];
         $db = Database::getInstance();
         
-        $stmt = $db->prepare("SELECT p.*, b.slug as board_slug 
+        $stmt = $db->prepare("SELECT p.*, b.slug as board_slug, b.skin, b.title as board_title 
                               FROM posts p 
                               JOIN boards b ON p.board_id = b.id 
                               WHERE p.id = :id");
         $stmt->execute(['id' => $id]);
         $post = $stmt->fetch();
 
-        if (!$post || (!isset($_SESSION['user']) || ($_SESSION['user']['user_id'] != $post['user_id'] && $_SESSION['user']['role'] != 'admin'))) {
-            $this->deny();
+        if (!$post) {
+            $this->notFound('Post not found');
+        }
+
+        $isAdmin = isset($_SESSION['user']) && ($_SESSION['user']['role'] ?? '') === 'admin';
+        $isMemberAuthor = isset($_SESSION['user']) && ($_SESSION['user']['user_id'] ?? '') === ($post['user_id'] ?? '');
+        $isGuestPost = ($post['user_id'] ?? '') === 'guest';
+        $isUnlocked = !empty($_SESSION['unlocked_posts'][(int)$id]) || !empty($_SESSION['edit_unlocked_posts'][(int)$id]);
+
+        if (!$isAdmin && !$isMemberAuthor) {
+            if (!$isGuestPost || empty($post['secret_password'])) {
+                $this->deny();
+            }
+            if (!$isUnlocked) {
+                $secretError = null;
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['secret_password'])) {
+                    if (!Csrf::verify($_POST['csrf_token'] ?? '')) {
+                        $this->deny('Invalid security token. Please try again.');
+                    }
+                    if (password_verify($_POST['secret_password'], $post['secret_password'])) {
+                        $_SESSION['edit_unlocked_posts'][(int)$id] = true;
+                        $this->redirect('/board/edit/' . (int)$id);
+                        return;
+                    }
+                    $secretError = '비밀번호가 일치하지 않습니다.';
+                }
+                $skin = $post['skin'] ?? 'basic';
+                $secretView = "board/skins/{$skin}/secret";
+                if (!file_exists(__DIR__ . "/../../views/{$secretView}.php")) {
+                    $secretView = "board/skins/sebyeol_contact/secret";
+                }
+                $this->view($secretView, [
+                    'post' => $post,
+                    'actionUrl' => '/board/edit/' . (int)$id,
+                    'secretTitle' => '게시글 수정 비밀번호 확인',
+                    'secretError' => $secretError
+                ]);
+                return;
+            }
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -280,12 +420,49 @@ class BoardController extends BaseController {
             $title = mb_substr(trim($_POST['title'] ?? ''), 0, 255);
             $content = \App\Core\HtmlSanitizer::sanitize($_POST['content'] ?? '');
             $editor_mode = $_POST['editor_mode'] ?? 'visual';
+            $authorName = isset($_POST['author_name']) ? mb_substr(trim($_POST['author_name']), 0, 80) : ($post['author_name'] ?? '');
+            $isSecret = isset($_POST['author_name']) ? (!empty($_POST['is_secret']) ? 1 : 0) : (int)($post['is_secret'] ?? 0);
+            $email = isset($_POST['email']) ? mb_substr(trim($_POST['email']), 0, 150) : ($post['email'] ?? '');
+            $phone = isset($_POST['phone']) ? mb_substr(trim($_POST['phone']), 0, 50) : ($post['phone'] ?? '');
+            $pw = $_POST['password'] ?? '';
+            $pwConfirm = $_POST['password_confirm'] ?? '';
+
+            if (($pw !== '' || $pwConfirm !== '') && $pw !== $pwConfirm) {
+                $stmtFiles = $db->prepare("SELECT * FROM post_files WHERE post_id = :id");
+                $stmtFiles->execute(['id' => $id]);
+                $stmtBoard = $db->prepare("SELECT * FROM boards WHERE id = :id");
+                $stmtBoard->execute(['id' => $post['board_id']]);
+                $boardInfo = $stmtBoard->fetch();
+                $skin = $boardInfo['skin'] ?? 'basic';
+                $this->view("board/skins/{$skin}/write", [
+                    'post' => $post,
+                    'files' => $stmtFiles->fetchAll(),
+                    'board' => $boardInfo,
+                    'error' => '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
+                    'old' => [
+                        'author_name' => $authorName,
+                        'is_secret' => $isSecret,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'title' => $title,
+                        'content' => $_POST['content'] ?? ''
+                    ]
+                ]);
+                return;
+            }
+
+            $secretPassword = $pw !== '' ? password_hash($pw, PASSWORD_DEFAULT) : ($post['secret_password'] ?? '');
             
-            $stmt = $db->prepare("UPDATE posts SET title = :title, content = :content, editor_mode = :editor_mode WHERE id = :id");
+            $stmt = $db->prepare("UPDATE posts SET title = :title, content = :content, editor_mode = :editor_mode, author_name = :author_name, is_secret = :is_secret, secret_password = :secret_password, email = :email, phone = :phone WHERE id = :id");
             $stmt->execute([
                 'title' => $title,
                 'content' => $content,
                 'editor_mode' => $editor_mode,
+                'author_name' => $authorName,
+                'is_secret' => $isSecret,
+                'secret_password' => $secretPassword,
+                'email' => $email,
+                'phone' => $phone,
                 'id' => $id
             ]);
 
@@ -517,10 +694,6 @@ class BoardController extends BaseController {
 
     // --- Comment (댓글) Methods ---
     public function addComment() {
-        if (!isset($_SESSION['user'])) {
-            return $this->json(['error' => 'Login required']);
-        }
-
         $postId = $_POST['post_id'] ?? null;
         $content = trim(strip_tags($_POST['content'] ?? ''));
         $content = mb_substr($content, 0, 2000);
@@ -574,20 +747,21 @@ class BoardController extends BaseController {
             $replyDepth = 1;
         }
 
+        $commentUserId = $_SESSION['user']['user_id'] ?? 'guest';
         $stmt = $db->prepare("INSERT INTO comments (post_id, user_id, parent_comment_id, content, reply_depth) VALUES (:post_id, :user_id, :parent_comment_id, :content, :reply_depth)");
         $stmt->execute([
             'post_id' => $postId,
-            'user_id' => $_SESSION['user']['user_id'],
+            'user_id' => $commentUserId,
             'parent_comment_id' => $parentCommentId,
             'content' => $content,
             'reply_depth' => $replyDepth
         ]);
 
-        // Add points for commenting
+        // Add points for commenting (members only)
         $commentPoint = (int)($board['point_comment'] ?? 0);
-        if ($commentPoint != 0) {
+        if (!empty($_SESSION['user']['user_id']) && $commentPoint != 0) {
             add_point($_SESSION['user']['user_id'], $commentPoint, 'Comment Write');
-            $_SESSION['user']['point'] += $commentPoint; // Sync session
+            $_SESSION['user']['point'] = ($_SESSION['user']['point'] ?? 0) + $commentPoint; // Sync session
         }
 
         return $this->json(['success' => true]);

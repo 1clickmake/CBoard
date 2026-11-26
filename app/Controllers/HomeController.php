@@ -185,4 +185,26 @@ class HomeController extends BaseController {
             'siteConfig' => $config
         ]);
     }
+
+    public function setLang($vars) {
+        $scope = ($vars['scope'] ?? 'site') === 'admin' ? 'admin' : 'site';
+        $code = $vars['code'] ?? 'ko';
+        $supported = function_exists('cm_supported_langs') ? cm_supported_langs() : ['ko' => '한국어', 'en' => 'English', 'ja' => '日本語', 'zh' => '中文'];
+        if (!isset($supported[$code])) $code = 'ko';
+
+        $_SESSION[$scope . '_lang'] = $code;
+
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $fallback = ($scope === 'admin') ? '/admin' : '/';
+        if ($referer) {
+            $parsed = parse_url($referer);
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            if (empty($parsed['host']) || $parsed['host'] === $host) {
+                $path = ($parsed['path'] ?? $fallback) . (!empty($parsed['query']) ? '?' . $parsed['query'] : '');
+                $this->redirect($path);
+                return;
+            }
+        }
+        $this->redirect($fallback);
+    }
 }

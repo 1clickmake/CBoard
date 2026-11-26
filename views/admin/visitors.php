@@ -1,4 +1,4 @@
-<?php $title = 'Visitor Analytics'; include_admin_header($title); ?>
+<?php $title = t_admin('admin.vis.title'); include_admin_header($title); ?>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -6,21 +6,21 @@
 <div class="glass-card" style="margin-bottom: 2rem;">
     <div class="admin-header-flex">
         <div>
-            <h1>Visitor Analytics</h1>
-            <p class="text-muted-small">Real-time and daily traffic statistics</p>
+            <h1><?= t_admin('admin.vis.title') ?></h1>
+            <p class="text-muted-small"><?= t_admin('admin.vis.subtitle') ?></p>
         </div>
         
         <!-- Cleanup Component -->
-        <form action="/admin/visitors/cleanup" method="POST" onsubmit="return confirm('Are you sure you want to delete old logs? This action cannot be undone.')">
+        <form action="/admin/visitors/cleanup" method="POST" onsubmit="return confirm(<?= htmlspecialchars(json_encode(t_admin('admin.vis.cleanup_confirm')), ENT_QUOTES) ?>)">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <select name="period" class="form-select form-select-sm" style="background: transparent !important; border: none !important; width: auto;">
-                    <option value="3" style="">Older than 3 Months</option>
-                    <option value="6" style="">Older than 6 Months</option>
-                    <option value="12" style="">Older than 12 Months</option>
+                    <option value="3" style=""><?= t_admin('admin.vis.m3') ?></option>
+                    <option value="6" style=""><?= t_admin('admin.vis.m6') ?></option>
+                    <option value="12" style=""><?= t_admin('admin.vis.m12') ?></option>
                 </select>
                 <button type="submit" class="btn btn-sm" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">
-                    <i class="fa-solid fa-trash-can"></i> Cleanup
+                    <i class="fa-solid fa-trash-can"></i> <?= t_admin('admin.vis.cleanup_btn') ?>
                 </button>
             </div>
         </form>
@@ -30,26 +30,26 @@
         <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
             <div class="text-muted-small" style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px;">
                 <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);"></span>
-                Live Visitors
+                <?= t_admin('admin.vis.live') ?>
             </div>
             <div style="font-size: 2rem; font-weight: 700; color: #10b981;"><?= number_format($stats['active']) ?></div>
         </div>
         <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
-            <div class="text-muted-small" style="margin-bottom: 0.5rem;">Today</div>
+            <div class="text-muted-small" style="margin-bottom: 0.5rem;"><?= t_admin('admin.vis.today') ?></div>
             <div class="text-primary-weight" style="font-size: 2rem;"><?= number_format($stats['today']) ?></div>
         </div>
         <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
-            <div class="text-muted-small" style="margin-bottom: 0.5rem;">Yesterday</div>
+            <div class="text-muted-small" style="margin-bottom: 0.5rem;"><?= t_admin('admin.vis.yesterday') ?></div>
             <div style="font-size: 2rem; font-weight: 700; color: #0f172a;"><?= number_format($stats['yesterday']) ?></div>
         </div>
         <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
-            <div class="text-muted-small" style="margin-bottom: 0.5rem;">Total Visitors</div>
+            <div class="text-muted-small" style="margin-bottom: 0.5rem;"><?= t_admin('admin.vis.total') ?></div>
             <div style="font-size: 2rem; font-weight: 700; color: #0f172a;"><?= number_format($stats['total']) ?></div>
         </div>
     </div>
 
-    <div style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
-        <h3 style="margin-bottom: 1.5rem; color: #0f172a; font-weight: 700;">Traffic Trend (Last 15 Days)</h3>
+    <div class="stat-card" style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(15,23,42,0.05);">
+        <h3 style="margin-bottom: 1.5rem; font-weight: 700;"><?= t_admin('admin.vis.trend') ?></h3>
         <div style="height: 300px; width: 100%;">
             <canvas id="visitorChart"></canvas>
         </div>
@@ -58,19 +58,19 @@
 
 <div class="glass-card" style="margin-bottom: 2rem;">
     <div class="admin-header-flex">
-        <h1>Recent Access Logs</h1>
-        <p class="text-muted-small">Latest 100 detailed access records</p>
+        <h1><?= t_admin('admin.vis.recent_logs') ?></h1>
+        <p class="text-muted-small"><?= t_admin('admin.vis.recent_sub') ?></p>
     </div>
 
     <div class="table-responsive">
         <table class="table tn-list table-hover text-center">
             <thead>
                 <tr>
-                    <th>Access Time</th>
-                    <th>IP Address</th>
-                    <th>Country</th>
-                    <th>Browser / User Agent</th>
-                    <th>Traffic Source</th>
+                    <th><?= t_admin('admin.vis.col_time') ?></th>
+                    <th><?= t_admin('admin.vis.col_ip') ?></th>
+                    <th><?= t_admin('admin.vis.col_country') ?></th>
+                    <th><?= t_admin('admin.vis.col_ua') ?></th>
+                    <th><?= t_admin('admin.vis.col_ref') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -105,7 +105,7 @@
                 <tr>
                     <td colspan="5" style="padding: 4rem 0;">
                         <i class="fas fa-info-circle text-muted" style="display: block; font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                        <p class="text-muted-small">No access logs found.</p>
+                        <p class="text-muted-small"><?= t_admin('admin.vis.empty') ?></p>
                     </td>
                 </tr>
                 <?php endif; ?>
@@ -119,29 +119,29 @@
 
 <div class="glass-card" style="margin-bottom: 2rem;">
     <h3 class="admin-section-header">
-        <i class="fa-solid fa-users-gear"></i> Access Control
+        <i class="fa-solid fa-users-gear"></i> <?= t_admin('admin.vis.acl') ?>
     </h3>
     <form action="/admin/visitors/save-ips" method="POST">
         <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
         <div class="admin-grid">
             <div>
                 <label class="form-label">
-                    <i class="fa-solid fa-check-circle" style="color: #10b981;"></i> Allowed IPs (Whitelist)
+                    <i class="fa-solid fa-check-circle" style="color: #10b981;"></i> <?= t_admin('admin.vis.allowed') ?>
                 </label>
-                <textarea name="allowed_ips" class="form-control" rows="5" placeholder="Enter IP addresses to ALLOW (one per line).&#13;&#10;If empty, all IPs are allowed." style="font-family: monospace; font-size: 0.9rem;"><?= htmlspecialchars($config['allowed_ips'] ?? '') ?></textarea>
-                <small class="text-muted-small" style="margin-top: 0.5rem; display: block;">Only listed IPs will be allowed access.</small>
+                <textarea name="allowed_ips" class="form-control" rows="5" style="font-family: monospace; font-size: 0.9rem;"><?= htmlspecialchars($config['allowed_ips'] ?? '') ?></textarea>
+                <small class="text-muted-small" style="margin-top: 0.5rem; display: block;"><?= t_admin('admin.vis.allowed_help') ?></small>
             </div>
             <div>
                 <label class="form-label">
-                    <i class="fa-solid fa-ban" style="color: #ef4444;"></i> Blocked IPs (Blacklist)
+                    <i class="fa-solid fa-ban" style="color: #ef4444;"></i> <?= t_admin('admin.vis.blocked') ?>
                 </label>
-                <textarea name="blocked_ips" class="form-control" rows="5" placeholder="Enter IP addresses to BLOCK (one per line)." style="font-family: monospace; font-size: 0.9rem;"><?= htmlspecialchars($config['blocked_ips'] ?? '') ?></textarea>
-                <small class="text-muted-small" style="margin-top: 0.5rem; display: block;">Listed IPs will be denied access.</small>
+                <textarea name="blocked_ips" class="form-control" rows="5" style="font-family: monospace; font-size: 0.9rem;"><?= htmlspecialchars($config['blocked_ips'] ?? '') ?></textarea>
+                <small class="text-muted-small" style="margin-top: 0.5rem; display: block;"><?= t_admin('admin.vis.blocked_help') ?></small>
             </div>
         </div>
         <div style="margin-top: 2rem; text-align: right;">
             <button type="submit" class="btn btn-primary">
-                <i class="fa-solid fa-save"></i> Save Rules
+                <i class="fa-solid fa-save"></i> <?= t_admin('admin.vis.save_rules') ?>
             </button>
         </div>
     </form>

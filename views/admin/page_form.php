@@ -1,5 +1,5 @@
 <?php 
-$title = ($mode === 'create' ? 'Create Page' : 'Edit Page: ' . htmlspecialchars($page['title'] ?? ''));
+$title = ($mode === 'create' ? t_admin('admin.pages.create_title') : t_admin('admin.pages.edit_title') . ': ' . htmlspecialchars($page['title'] ?? ''));
 include CM_LAYOUT_PATH . '/admin_header.php';
 ?>
 
@@ -8,50 +8,50 @@ include CM_LAYOUT_PATH . '/admin_header.php';
 <div class="glass-card">
     <div class="admin-header-flex">
         <h1><?= $title ?></h1>
-        <a href="/admin/pages" class="btn btn-cancel-light">Back to List</a>
+        <a href="/admin/pages" class="btn btn-cancel-light"><?= t_admin('admin.pages.back') ?></a>
     </div>
 
     <form id="pageForm" action="<?= $mode === 'create' ? '/admin/pages/create' : '/admin/pages/edit/' . $page['id'] ?>" method="POST">
         <div class="admin-grid" style="margin-bottom: 2rem;">
             <div class="form-group">
-                <label class="form-label">Page Title</label>
-                <input type="text" name="title" id="page_title" class="form-control" value="<?= htmlspecialchars($page['title'] ?? '') ?>" required placeholder="e.g. About Company">
+                <label class="form-label"><?= t_admin('admin.pages.page_title') ?></label>
+                <input type="text" name="title" id="page_title" class="form-control" value="<?= htmlspecialchars($page['title'] ?? '') ?>" required>
             </div>
             <div class="form-group">
-                <label class="form-label">URL Slug (English, numbers, hyphens only)</label>
-                <input type="text" name="slug" id="page_slug" class="form-control" value="<?= htmlspecialchars($page['slug'] ?? '') ?>" placeholder="e.g. about-us">
-                <small class="text-muted-small">Leave empty to generate from title</small>
+                <label class="form-label"><?= t_admin('admin.pages.slug_label') ?></label>
+                <input type="text" name="slug" id="page_slug" class="form-control" value="<?= htmlspecialchars($page['slug'] ?? '') ?>" placeholder="about-us">
+                <small class="text-muted-small"><?= t_admin('admin.pages.slug_help') ?></small>
             </div>
         </div>
 
         <div class="admin-grid" style="margin-bottom: 2rem;">
             <div class="form-group d-flex align-items-center gap-3">
-                <label class="form-label mb-0">Display Title</label>
+                <label class="form-label mb-0"><?= t_admin('admin.pages.display_title') ?></label>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="display_title" id="display_title" <?= ($page['display_title'] ?? 1) ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="display_title">Show title on page</label>
+                    <label class="form-check-label" for="display_title"><?= t_admin('admin.pages.show_title') ?></label>
                 </div>
             </div>
             <div class="form-group d-flex align-items-center gap-3">
-                <label class="form-label mb-0">Container Style</label>
+                <label class="form-label mb-0"><?= t_admin('admin.pages.container_style') ?></label>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="use_card_style" id="use_card_style" <?= ($page['use_card_style'] ?? 1) ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="use_card_style">Show in styled card box</label>
+                    <label class="form-check-label" for="use_card_style"><?= t_admin('admin.pages.use_card') ?></label>
                 </div>
             </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <label class="form-label" style="margin-bottom: 0;">Page Content</label>
+                <label class="form-label" style="margin-bottom: 0;"><?= t_admin('admin.pages.content') ?></label>
                 <div class="d-flex align-items-center gap-2">
                     <?php do_action('admin_page_form_content_tools'); ?>
                     <div class="btn-group" role="group" style="background: rgba(255,255,255,0.1); padding: 4px; border-radius: 8px;">
                         <input type="radio" class="btn-check" name="editor_mode" id="mode_visual" value="visual" <?= ($page['editor_mode'] ?? 'visual') === 'visual' ? 'checked' : '' ?> autocomplete="off">
-                        <label class="btn btn-sm btn-mode-label" for="mode_visual">Visual</label>
+                        <label class="btn btn-sm btn-mode-label" for="mode_visual"><?= t_admin('admin.pages.mode_visual') ?></label>
 
                         <input type="radio" class="btn-check" name="editor_mode" id="mode_html" value="html" <?= ($page['editor_mode'] ?? 'visual') === 'html' ? 'checked' : '' ?> autocomplete="off">
-                        <label class="btn btn-sm btn-mode-label" for="mode_html">HTML</label>
+                        <label class="btn btn-sm btn-mode-label" for="mode_html"><?= t_admin('admin.pages.mode_html') ?></label>
                     </div>
                 </div>
             </div>
@@ -70,10 +70,10 @@ include CM_LAYOUT_PATH . '/admin_header.php';
         </div>
 
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Save Page</button>
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;"><?= t_admin('admin.pages.save_btn') ?></button>
             <?php if ($mode === 'edit' && !empty($page['slug'])): ?>
                 <a href="/page/<?= htmlspecialchars($page['slug']) ?>" target="_blank" class="btn" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.75rem 1.5rem;">
-                    <i class="fa-solid fa-eye me-1"></i> Preview
+                    <i class="fa-solid fa-eye me-1"></i> <?= t_admin('admin.pages.preview') ?>
                 </a>
             <?php endif; ?>
         </div>

@@ -9,9 +9,9 @@
         <div style="display: flex; gap: 0.5rem; align-items: center;">
             <?php if ($is_member): ?>
                 <?php if ($is_admin): ?>
-                    <button class="btn btn-danger" id="btn-bulk-delete" style="display: none;" onclick="bulkDelete()">Delete Selected</button>
+                    <button class="btn btn-danger" id="btn-bulk-delete" style="display: none;" onclick="bulkDelete()"><?= t('admin.point.bulk_delete') ?></button>
                 <?php endif; ?>
-                <a href="/board/write/<?= $board['slug'] ?>" class="btn btn-primary">✏️ Write Post</a>
+                <a href="/board/write/<?= $board['slug'] ?>" class="btn btn-primary">✏️ <?= t('board.write') ?></a>
             <?php endif; ?>
         </div>
     </div>
@@ -26,20 +26,20 @@
 						<?php if ($is_admin): ?>
 							<th style="width: 40px;"><input type="checkbox" id="check-all" class="form-check-input"></th>
 						<?php endif; ?>
-						<th class="col-no">No.</th>
-						<th>Title</th>
-						<th class="col-author">Author</th>
-						<th class="col-views">Views</th>
-						<th class="col-replies">Replies</th>
-						<th class="col-comments">Comments</th>
-						<th class="col-date">Date</th>
+						<th class="col-no"><?= t('board.col.no') ?></th>
+						<th><?= t('board.col.title') ?></th>
+						<th class="col-author"><?= t('board.col.author') ?></th>
+						<th class="col-views"><?= t('board.col.views') ?></th>
+						<th class="col-replies"><?= t('board.replies') ?></th>
+						<th class="col-comments"><?= t('board.comments') ?></th>
+						<th class="col-date"><?= t('board.col.date') ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php if (empty($posts)): ?>
 					<tr>
 						<td colspan="<?= ($is_admin) ? 8 : 7 ?>" class="empty-state">
-							<?= !empty($search) ? 'No search results found.' : 'No posts yet. Be the first to write!' ?>
+							<?= t('board.empty') ?>
 						</td>
 					</tr>
 					<?php else: ?>
