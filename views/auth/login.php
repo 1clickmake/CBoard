@@ -7,6 +7,10 @@
 .sb-auth-label { display:block; color:#d1d5db; font-size:13px; font-weight:600; margin-bottom:8px; }
 .sb-auth-input { width:100% !important; box-sizing:border-box !important; padding:12px 14px !important; background:rgba(255,255,255,0.07) !important; border:1px solid rgba(255,255,255,0.18) !important; border-radius:8px !important; color:#fff !important; -webkit-text-fill-color:#fff !important; caret-color:#fff; font-size:14px !important; outline:none !important; height:auto !important; }
 .sb-auth-input:focus { background:rgba(255,255,255,0.12) !important; border-color:#818cf8 !important; }
+.sb-auth-input:-webkit-autofill,
+.sb-auth-input:-webkit-autofill:hover,
+.sb-auth-input:-webkit-autofill:focus,
+.sb-auth-input:-webkit-autofill:active { -webkit-box-shadow: 0 0 0 1000px #171e2e inset !important; -webkit-text-fill-color: #ffffff !important; caret-color: #ffffff !important; border-color: rgba(255,255,255,0.22) !important; transition: background-color 5000s ease-in-out 0s; }
 .sb-auth-input::placeholder { color:#9ca3af !important; -webkit-text-fill-color:#9ca3af !important; }
 .sb-auth-btn { width:100%; padding:13px; background:#fff; color:#0b0f19 !important; font-weight:700; font-size:15px; border:none; border-radius:8px; cursor:pointer; margin-top:6px; box-sizing:border-box; }
 </style>
