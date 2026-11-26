@@ -435,6 +435,7 @@ class AdminController extends BaseController {
 
     public function boards() {
         $db = Database::getInstance();
+        $this->ensureBoardUploadCountColumn($db);
 
         // Ensure columns exist
         try {
@@ -481,6 +482,20 @@ class AdminController extends BaseController {
         ]);
     }
 
+    private function ensureBoardUploadCountColumn($db) {
+        static $checked = false;
+        if ($checked) return;
+        $checked = true;
+        try {
+            $col = $db->query("SHOW COLUMNS FROM boards LIKE 'upload_count'")->fetch();
+            if (!$col) {
+                $db->exec("ALTER TABLE boards ADD COLUMN upload_count INT NOT NULL DEFAULT 5 AFTER page_buttons");
+            }
+        } catch (\Throwable $e) {
+            // ignore if already exists or lacks DDL permission
+        }
+    }
+
     public function createBoard() {
         if (!\App\Core\Csrf::verify($_POST['csrf_token'] ?? '')) $this->deny('Invalid security token. Please try again.');
         $groupId = $_POST['group_id'] ?? null;
@@ -492,10 +507,12 @@ class AdminController extends BaseController {
         $allowComments = intval($_POST['allow_comments'] ?? 1);
         $pageRows = intval($_POST['page_rows'] ?? 20);
         $pageButtons = intval($_POST['page_buttons'] ?? 5);
+        $uploadCount = max(0, min(20, intval($_POST['upload_count'] ?? 5)));
 
         if ($groupId && $title) {
             $db = Database::getInstance();
-            $stmt = $db->prepare("INSERT INTO boards (group_id, title, slug, description, skin, max_replies, allow_comments, page_rows, page_buttons, level_list, level_view, level_write, level_comment, point_write, point_view, point_comment) VALUES (:group_id, :title, :slug, :description, :skin, :max_replies, :allow_comments, :page_rows, :page_buttons, :level_list, :level_view, :level_write, :level_comment, :point_write, :point_view, :point_comment)");
+            $this->ensureBoardUploadCountColumn($db);
+            $stmt = $db->prepare("INSERT INTO boards (group_id, title, slug, description, skin, max_replies, allow_comments, page_rows, page_buttons, upload_count, level_list, level_view, level_write, level_comment, point_write, point_view, point_comment) VALUES (:group_id, :title, :slug, :description, :skin, :max_replies, :allow_comments, :page_rows, :page_buttons, :upload_count, :level_list, :level_view, :level_write, :level_comment, :point_write, :point_view, :point_comment)");
             $stmt->execute([
                 'group_id' => $groupId,
                 'title' => $title,
@@ -506,6 +523,7 @@ class AdminController extends BaseController {
                 'allow_comments' => $allowComments,
                 'page_rows' => $pageRows,
                 'page_buttons' => $pageButtons,
+                'upload_count' => $uploadCount,
                 'level_list' => intval($_POST['level_list'] ?? 1),
                 'level_view' => intval($_POST['level_view'] ?? 1),
                 'level_write' => intval($_POST['level_write'] ?? 1),
@@ -529,10 +547,12 @@ class AdminController extends BaseController {
         $allowComments = intval($_POST['allow_comments'] ?? 1);
         $pageRows = intval($_POST['page_rows'] ?? 20);
         $pageButtons = intval($_POST['page_buttons'] ?? 5);
+        $uploadCount = max(0, min(20, intval($_POST['upload_count'] ?? 5)));
 
         if ($id && $title) {
             $db = Database::getInstance();
-            $stmt = $db->prepare("UPDATE boards SET group_id = :group_id, title = :title, description = :description, skin = :skin, max_replies = :max_replies, allow_comments = :allow_comments, page_rows = :page_rows, page_buttons = :page_buttons, level_list = :level_list, level_view = :level_view, level_write = :level_write, level_comment = :level_comment, point_write = :point_write, point_view = :point_view, point_comment = :point_comment WHERE id = :id");
+            $this->ensureBoardUploadCountColumn($db);
+            $stmt = $db->prepare("UPDATE boards SET group_id = :group_id, title = :title, description = :description, skin = :skin, max_replies = :max_replies, allow_comments = :allow_comments, page_rows = :page_rows, page_buttons = :page_buttons, upload_count = :upload_count, level_list = :level_list, level_view = :level_view, level_write = :level_write, level_comment = :level_comment, point_write = :point_write, point_view = :point_view, point_comment = :point_comment WHERE id = :id");
             $stmt->execute([
                 'group_id' => $groupId,
                 'title' => $title,
@@ -542,6 +562,7 @@ class AdminController extends BaseController {
                 'allow_comments' => $allowComments,
                 'page_rows' => $pageRows,
                 'page_buttons' => $pageButtons,
+                'upload_count' => $uploadCount,
                 'level_list' => intval($_POST['level_list'] ?? 1),
                 'level_view' => intval($_POST['level_view'] ?? 1),
                 'level_write' => intval($_POST['level_write'] ?? 1),

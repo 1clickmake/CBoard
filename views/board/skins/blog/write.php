@@ -46,8 +46,13 @@ include_header($title, $siteConfig);
                 <input type="hidden" name="content" id="content">
             </div>
 
+            <?php
+            $maxUploadFiles = isset($board['upload_count']) ? max(0, (int)$board['upload_count']) : 5;
+            $existingFileCount = isset($files) && is_array($files) ? count($files) : 0;
+            ?>
+            <?php if ($maxUploadFiles > 0): ?>
             <div class="form-group" style="margin-top: 2rem;">
-                <label class="attachments-label">📎 Attachments (Max 5)</label>
+                <label class="attachments-label">📎 Attachments (Max <?= $maxUploadFiles ?>)</label>
                 
                 <?php if (isset($files) && !empty($files)): ?>
                     <div class="existing-files-wrapper">
@@ -66,10 +71,11 @@ include_header($title, $siteConfig);
                 <div id="file-inputs">
                     <div class="file-input-group">
                         <input type="file" name="attachments[]" class="form-control">
-                        <button type="button" class="btn btn-primary add-file btn-add-file">+</button>
+                        <?php if ($maxUploadFiles > 1): ?><button type="button" class="btn btn-primary add-file btn-add-file">+</button><?php endif; ?>
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
             
             <div class="write-actions">
                 <button type="submit" class="btn btn-primary btn-submit">
@@ -99,9 +105,11 @@ $(document).ready(function() {
     });
 
     // Dynamic File Inputs
+    var maxUploadFiles = <?= $maxUploadFiles ?>;
+    var existingFileCount = <?= $existingFileCount ?>;
     $(document).on('click', '.btn-add-file', function() {
         var count = $('.file-input-group').length;
-        if (count < 5) {
+        if (existingFileCount + count < maxUploadFiles) {
             var newRow = `
                 <div class="file-input-group">
                     <input type="file" name="attachments[]" class="form-control">
@@ -109,7 +117,7 @@ $(document).ready(function() {
                 </div>`;
             $('#file-inputs').append(newRow);
         } else {
-            alert('You can upload up to 5 files.');
+            alert('You can upload up to ' + maxUploadFiles + ' files.');
         }
     });
 

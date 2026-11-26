@@ -171,6 +171,7 @@ return [
     'admin.boards.no' => '禁止',
     'admin.boards.page_rows' => '每页显示条数',
     'admin.boards.page_buttons' => '分页按钮数',
+    'admin.boards.upload_count' => '附件数量限制 (0=关闭)',
     'admin.boards.access_levels' => '访问权限等级 (1-10)',
     'admin.boards.level_list' => '列表查看等级',
     'admin.boards.level_view' => '详情查看等级',

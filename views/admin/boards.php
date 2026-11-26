@@ -63,6 +63,10 @@ if (empty($groups)) {
                     <label class="form-label"><?= t_admin('admin.boards.page_buttons') ?></label>
                     <input type="number" name="page_buttons" class="form-control" value="5" min="1" max="20">
                 </div>
+                <div class="form-group">
+                    <label class="form-label"><?= t_admin('admin.boards.upload_count') ?></label>
+                    <input type="number" name="upload_count" class="form-control" value="5" min="0" max="20">
+                </div>
             </div>
 
             <div class="admin-grid" style="margin-bottom: 1.5rem;">
@@ -174,6 +178,10 @@ if (empty($groups)) {
                 <div class="form-group">
                     <label class="form-label"><?= t_admin('admin.boards.page_buttons') ?></label>
                     <input type="number" name="page_buttons" id="edit-page-buttons" class="form-control" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><?= t_admin('admin.boards.upload_count') ?></label>
+                    <input type="number" name="upload_count" id="edit-upload-count" class="form-control" min="0" max="20">
                 </div>
             </div>
 
@@ -300,6 +308,7 @@ if (empty($groups)) {
         $('#edit-allow-comments').val(board.allow_comments !== undefined ? board.allow_comments : 1);
         $('#edit-page-rows').val(board.page_rows || 20);
         $('#edit-page-buttons').val(board.page_buttons || 5);
+        $('#edit-upload-count').val(board.upload_count !== undefined && board.upload_count !== null ? board.upload_count : 5);
         $('#edit-level-list').val(board.level_list || 1);
         $('#edit-level-view').val(board.level_view || 1);
         $('#edit-level-write').val(board.level_write || 1);

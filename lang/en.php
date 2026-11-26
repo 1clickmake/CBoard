@@ -171,6 +171,7 @@ return [
     'admin.boards.no' => 'No',
     'admin.boards.page_rows' => 'Rows Per Page',
     'admin.boards.page_buttons' => 'Page Buttons',
+    'admin.boards.upload_count' => 'Max Attachments (0=Off)',
     'admin.boards.access_levels' => 'Access Levels (1-10)',
     'admin.boards.level_list' => 'List Level',
     'admin.boards.level_view' => 'View Level',

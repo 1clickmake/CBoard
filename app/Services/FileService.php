@@ -25,13 +25,22 @@ class FileService {
         return $slug !== '' ? $slug : 'default';
     }
     
-    public function handleUploads($postId, $boardSlug, $files) {
-        if (empty($files) || !isset($files['name'][0]) || empty($files['name'][0])) {
+    public function handleUploads($postId, $boardSlug, $files, $maxUploadCount = 5) {
+        $maxUploadCount = max(0, (int)$maxUploadCount);
+        if ($maxUploadCount === 0 || empty($files) || !isset($files['name'][0]) || empty($files['name'][0])) {
             return;
         }
 
         $db = Database::getInstance();
         $postId = (int)$postId;
+        $cntStmt = $db->prepare("SELECT COUNT(*) FROM post_files WHERE post_id = :post_id");
+        $cntStmt->execute(['post_id' => $postId]);
+        $existingCount = (int)$cntStmt->fetchColumn();
+        $remainingSlots = $maxUploadCount - $existingCount;
+        if ($remainingSlots <= 0) {
+            return;
+        }
+
         $basePublicPath = CM_PUBLIC_PATH;
         $boardSlug = $this->safeSlug($boardSlug);
         $uploadDir = '/data/' . $boardSlug . '/';
@@ -39,7 +48,11 @@ class FileService {
 
         $this->ensureUploadProtection($fullPath);
 
+        $uploadedNow = 0;
         foreach ($files['name'] as $key => $name) {
+            if ($uploadedNow >= $remainingSlots) {
+                break;
+            }
             if ($files['error'][$key] === UPLOAD_ERR_OK) {
                 if (($files['size'][$key] ?? 0) > $this->maxFileSize) continue;
                 $tmpName = $files['tmp_name'][$key];
@@ -86,6 +99,7 @@ class FileService {
                         if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
                             $this->resizeImage($targetFile, 1000);
                         }
+                        $uploadedNow++;
                     } catch (\Throwable $e) {
                         error_log("File Upload Error: " . $e->getMessage());
                     }

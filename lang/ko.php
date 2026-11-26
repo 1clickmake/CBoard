@@ -171,6 +171,7 @@ return [
     'admin.boards.no' => '사용 안함',
     'admin.boards.page_rows' => '페이지당 글 수 (목록 출력 수)',
     'admin.boards.page_buttons' => '페이징 버튼 수',
+    'admin.boards.upload_count' => '첨부파일 수 (0=미사용)',
     'admin.boards.access_levels' => '접근 권한 레벨 (1-10)',
     'admin.boards.level_list' => '목록 보기 레벨',
     'admin.boards.level_view' => '글 보기 레벨',

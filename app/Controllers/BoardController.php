@@ -323,7 +323,8 @@ class BoardController extends BaseController {
             // Handle file uploads
             if (isset($_FILES['attachments'])) {
                 $fileService = new FileService();
-                $fileService->handleUploads($postId, $slug, $_FILES['attachments']);
+                $maxUploadCount = isset($board['upload_count']) ? (int)$board['upload_count'] : 5;
+                $fileService->handleUploads($postId, $slug, $_FILES['attachments'], $maxUploadCount);
             }
             
             // Add points for posting (members only)
@@ -481,15 +482,16 @@ class BoardController extends BaseController {
                 }
             }
 
-            // Get board slug for file path
-            $stmt = $db->prepare("SELECT slug FROM boards WHERE id = :id");
+            // Get board slug and upload_count for file path
+            $stmt = $db->prepare("SELECT slug, upload_count FROM boards WHERE id = :id");
             $stmt->execute(['id' => $post['board_id']]);
             $board = $stmt->fetch();
 
             // Handle new file uploads
             if (isset($_FILES['attachments'])) {
                 $fileService = new FileService();
-                $fileService->handleUploads($id, $board['slug'], $_FILES['attachments']);
+                $maxUploadCount = isset($board['upload_count']) ? (int)$board['upload_count'] : 5;
+                $fileService->handleUploads($id, $board['slug'], $_FILES['attachments'], $maxUploadCount);
             }
             
             $this->redirect('/board/view/' . $id);

@@ -171,6 +171,7 @@ return [
     'admin.boards.no' => '不可',
     'admin.boards.page_rows' => '1ページの表示件数',
     'admin.boards.page_buttons' => 'ページボタン数',
+    'admin.boards.upload_count' => '添付ファイル数 (0=無効)',
     'admin.boards.access_levels' => 'アクセス権限レベル (1-10)',
     'admin.boards.level_list' => '一覧閲覧レベル',
     'admin.boards.level_view' => '詳細閲覧レベル',
